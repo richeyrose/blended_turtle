@@ -23,15 +23,20 @@ bl_info = {
 }
 import os
 import bpy
-from . Main.blended_turtle import OBJECT_OT_add_turtle
+from . Operators.blended_turtle import OBJECT_OT_add_turtle
+from . Commands import*
+
+classes = (OBJECT_OT_add_turtle, pen_down, pen_up)
 
 def register():
-    bpy.utils.register_class(OBJECT_OT_add_turtle)
+    for cls in classes:
+        bpy.utils.register_class(cls)
     bpy.utils.register_manual_map(OBJECT_OT_add_turtle.add_object_manual_map)
     bpy.types.VIEW3D_MT_mesh_add.append(OBJECT_OT_add_turtle.add_object_button)
 
 
 def unregister():
-    bpy.utils.unregister_class(OBJECT_OT_add_turtle)
-    bpy.utils.unregister_manual_map(OBJECT_OT_add_turtle.add_object_manual_map)
+    for cls in reversed(classes):
+        bpy.utils.unregister_class(cls)
     bpy.types.VIEW3D_MT_mesh_add.remove(OBJECT_OT_add_turtle.add_object_button)
+    bpy.utils.unregister_manual_map(OBJECT_OT_add_turtle.add_object_manual_map)
