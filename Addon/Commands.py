@@ -4,40 +4,87 @@ import bmesh
 from mathutils import Vector
 from . Utils.utils import *
 
+class turtle_commands(bpy.types.Operator):
+    bl_idname = "turtle.turtle"
+    bl_label = "move turtle"
 
-class pen_down(bpy.types.Operator):
-    bl_idname = "turtle.pd"
-    bl_label = "pen down"
+    pd = bpy.props.BoolProperty()
+    pu = bpy.props.BoolProperty()
+    fd = bpy.props.FloatProperty()
+    bk = bpy.props.FloatProperty()
+    lt = bpy.props.FloatProperty()
+    rt = bpy.props.FloatProperty()
+    
+    def execute(self, context):
+        if self.pd:
+            pen_down()
+        if self.pu:
+            pen_up()
+        if self.fd:
+            forward(self.fd)
+        if self.lt:
+            left_turn(self.lt)
+        return {'FINISHED'}
+
+
+def forward(distance):
+        """move turtle forward"""
+        bpy.ops.transform.translate(
+            value=(0, distance, 0),
+            orient_type='CURSOR',
+            cursor_transform=True)
+
+        if bpy.context.object['pendownp']:
+            bpy.ops.mesh.extrude_vertices_move(
+                TRANSFORM_OT_translate=
+                {"value":(0, distance, 0),
+                    "orient_type":'CURSOR'})
+        return{'FINISHED'}
+
+def left_turn(degrees):
+    """rotate turtle left"""
+    turtle = bpy.context.scene.cursor
+    turtle.rotation_euler = [
+    turtle.rotation_euler[0],
+    turtle.rotation_euler[1],
+    turtle.rotation_euler[2] + radians(degrees)]
+    return{'FINISHED'}
+
+def pen_down():
+    """pen down"""
+    bpy.ops.mesh.primitive_vert_add()
+    bpy.context.object['pendownp'] = True
+
+    bpy.ops.object.editmode_toggle()
+    bpy.ops.object.editmode_toggle()
+    return{'FINISHED'}
+
+def pen_up():
+    """pen up"""
+    bpy.context.object['pendownp'] = False
+    bpy.ops.mesh.select_all(action='DESELECT')
+
+    bpy.ops.object.editmode_toggle()
+    bpy.ops.object.editmode_toggle()
+    return{'FINISHED'}
+class position(bpy.types.Operator):
+    bl_idname = "turtle.pos"
+    bl_label = "get position"
 
     def execute(self, context):
-        """pen down"""
-        bpy.ops.mesh.primitive_vert_add()
-        bpy.context.object['pendownp'] = True
-
-        bpy.ops.object.editmode_toggle()
-        bpy.ops.object.editmode_toggle()
-
-
-class pen_up(bpy.types.Operator):
-    bl_idname = "turtle.pu"
-    bl_label = "pen down"
-   
-    def execute(self, context):
-        """pen up"""
-        deselect_all()
-        bpy.context.object['pendownp'] = False
-
-        bpy.ops.object.editmode_toggle()
-        bpy.ops.object.editmode_toggle()
-'''
-    def pos():
         """returns the turtle's position"""
         return bpy.context.scene.cursor.location
 
-    def heading():
+class heading(bpy.types.Operator):
+    bl_idname = "turtle.heading"
+    bl_label = "get heading"
+
+    def execute(self, context):
         """returns the turtle's heading in degrees"""
         rot = bpy.context.scene.cursor.rotation_euler
         return Vector((degrees(rot[0]), degrees(rot[1]), degrees(rot[2])))
+
+'''
 
     def cs():
         """homes the turtle and deletes all vertices"""
@@ -51,19 +98,6 @@ class pen_up(bpy.types.Operator):
         bpy.context.scene.cursor.location = C.object.location
         bpy.context.scene.cursor.rotation_euler = (0, 0, 0)
 
-
-    def fd(distance):
-        """move turtle forward"""
-        bpy.ops.transform.translate(
-            value=(0, distance, 0),
-            orient_type='CURSOR',
-            cursor_transform=True)
-
-        if bpy.context.object:
-            bpy.ops.mesh.extrude_vertices_move(
-                TRANSFORM_OT_translate=
-                {"value":(0, distance, 0),
-                    "orient_type":'CURSOR'})
 
     def bk(distance):
         """move turtle backward"""

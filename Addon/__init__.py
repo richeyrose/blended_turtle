@@ -24,9 +24,9 @@ bl_info = {
 import os
 import bpy
 from . Operators.blended_turtle import OBJECT_OT_add_turtle
-from . Commands import*
+from . commands import*
 
-classes = (OBJECT_OT_add_turtle, pen_down, pen_up)
+classes = (OBJECT_OT_add_turtle, turtle_commands)
 
 def register():
     for cls in classes:
