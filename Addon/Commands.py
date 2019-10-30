@@ -1,33 +1,85 @@
 from math import degrees, radians
 import bpy
+from bpy.props import StringProperty
 import bmesh
 from mathutils import Vector
 from . Utils.utils import *
 
 class turtle_commands(bpy.types.Operator):
-    bl_idname = "turtle.turtle"
+    bl_idname = "mesh.turtle"
     bl_label = "move turtle"
 
-    pd = bpy.props.BoolProperty()
-    pu = bpy.props.BoolProperty()
-    fd = bpy.props.FloatProperty()
-    bk = bpy.props.FloatProperty()
-    lt = bpy.props.FloatProperty()
-    rt = bpy.props.FloatProperty()
-    
+    move: StringProperty()
+
     def execute(self, context):
-        if self.pd:
-            pen_down()
-        if self.pu:
-            pen_up()
-        if self.fd:
-            forward(self.fd)
-        if self.lt:
-            left_turn(self.lt)
+        
+        #split "move" string by commas
+        commands = [x.strip() for x in self.move.split(',')]
+
+        for c in commands:
+            #check what command has been passed
+            if c.startswith('home'):
+                self.home()
+            elif c.startswith('clear_world'):
+                self.clear_world()
+            elif c.startswith('fd'):
+                #remove first two characters and convert to float
+                self.forward(float(c[2:]))
+            elif c.startswith('bk'):
+                self.backward(float(c[2:]))
+            elif c.startswith('lt'):
+                self.left_turn(float(c[2:]))
+            elif c.startswith('rt'):
+                self.right_turn(float(c[2:]))
+
+
         return {'FINISHED'}
+    #world methods
+    def clear_world(self):
+        """homes the turtle and deletes all vertices"""
+        self.home()
+        delete_all()
+        if bpy.context.object['pendownp']:
+            bpy.ops.mesh.primitive_vert_add()
 
+    def home(self):
+        """Moves the turtle to the centre of the canvas and zeros its heading"""
+        bpy.context.scene.cursor.location = bpy.context.object.location
+        bpy.context.scene.cursor.rotation_euler = (0, 0, 0)
 
-def forward(distance):
+    def clean(self):
+        """deletes mesh, leaves turtle where it is"""
+        delete_all()
+        if bpy.context.object:
+            bpy.ops.mesh.primitive_vert_add()
+
+    #reporting methods
+    def position(self):
+        """returns the turtle's position"""
+        return (bpy.context.scene.cursor.location)
+
+    def heading(self):
+        """returns the turtle's heading in degrees"""
+        rot = bpy.context.scene.cursor.rotation_euler
+        return (Vector((degrees(rot[0]), degrees(rot[1]), degrees(rot[2]))))
+
+    def pen_down(self):
+        """pen down"""
+        bpy.ops.mesh.primitive_vert_add()
+        bpy.context.object['pendownp'] = True
+
+        bpy.ops.object.editmode_toggle()
+        bpy.ops.object.editmode_toggle()
+
+    def pen_up(self):
+        """pen up"""
+        bpy.context.object['pendownp'] = False
+        bpy.ops.mesh.select_all(action='DESELECT')
+
+        bpy.ops.object.editmode_toggle()
+        bpy.ops.object.editmode_toggle()
+    
+    def forward(self, distance):
         """move turtle forward"""
         bpy.ops.transform.translate(
             value=(0, distance, 0),
@@ -39,67 +91,8 @@ def forward(distance):
                 TRANSFORM_OT_translate=
                 {"value":(0, distance, 0),
                     "orient_type":'CURSOR'})
-        return{'FINISHED'}
-
-def left_turn(degrees):
-    """rotate turtle left"""
-    turtle = bpy.context.scene.cursor
-    turtle.rotation_euler = [
-    turtle.rotation_euler[0],
-    turtle.rotation_euler[1],
-    turtle.rotation_euler[2] + radians(degrees)]
-    return{'FINISHED'}
-
-def pen_down():
-    """pen down"""
-    bpy.ops.mesh.primitive_vert_add()
-    bpy.context.object['pendownp'] = True
-
-    bpy.ops.object.editmode_toggle()
-    bpy.ops.object.editmode_toggle()
-    return{'FINISHED'}
-
-def pen_up():
-    """pen up"""
-    bpy.context.object['pendownp'] = False
-    bpy.ops.mesh.select_all(action='DESELECT')
-
-    bpy.ops.object.editmode_toggle()
-    bpy.ops.object.editmode_toggle()
-    return{'FINISHED'}
-class position(bpy.types.Operator):
-    bl_idname = "turtle.pos"
-    bl_label = "get position"
-
-    def execute(self, context):
-        """returns the turtle's position"""
-        return bpy.context.scene.cursor.location
-
-class heading(bpy.types.Operator):
-    bl_idname = "turtle.heading"
-    bl_label = "get heading"
-
-    def execute(self, context):
-        """returns the turtle's heading in degrees"""
-        rot = bpy.context.scene.cursor.rotation_euler
-        return Vector((degrees(rot[0]), degrees(rot[1]), degrees(rot[2])))
-
-'''
-
-    def cs():
-        """homes the turtle and deletes all vertices"""
-        home()
-        delete_all()
-        bpy.ops.mesh.primitive_vert_add()
-        return {'FINISHED'}
-
-    def home():
-        """Moves the turtle to the centre of the canvas and zeros its heading"""
-        bpy.context.scene.cursor.location = C.object.location
-        bpy.context.scene.cursor.rotation_euler = (0, 0, 0)
-
-
-    def bk(distance):
+    
+    def backward(self, distance):
         """move turtle backward"""
         bpy.ops.transform.translate(
             value=(0, -distance, 0),
@@ -112,7 +105,7 @@ class heading(bpy.types.Operator):
                 {"value":(0, -distance, 0),
                     "orient_type":'CURSOR'})
 
-    def up(distance):
+    def up(self, distance):
         """move turtle up"""
         bpy.ops.transform.translate(
             value=(0, 0, distance),
@@ -125,7 +118,7 @@ class heading(bpy.types.Operator):
                 {"value":(0, 0, distance),
                     "orient_type":'CURSOR'})
 
-    def dn(distance):
+    def down(self, distance):
         """move turtle down"""
         bpy.ops.transform.translate(
             value=(0, 0, -distance),
@@ -138,7 +131,7 @@ class heading(bpy.types.Operator):
                 {"value":(0, 0, -distance),
                 "orient_type":'CURSOR'})
 
-    def lf(distance):
+    def left(self, distance):
         """move turtle left"""
         bpy.ops.transform.translate(
             value = (-distance, 0, 0),
@@ -151,7 +144,7 @@ class heading(bpy.types.Operator):
                 {"value":(-distance, 0, 0),
                 "orient_type":'CURSOR'})
                 
-    def ri(distance):
+    def right(self, distance):
         """move turtle right"""
         bpy.ops.transform.translate(
             value = (distance, 0, 0),
@@ -163,17 +156,16 @@ class heading(bpy.types.Operator):
                 TRANSFORM_OT_translate=
                 {"value":(distance, 0, 0),
                 "orient_type":'CURSOR'})
-        
-    def lt(degrees):
-        """rotate turtle counter-clockwise"""
+
+    def left_turn(self, deg):
+        """rotate turtle left"""
         turtle = bpy.context.scene.cursor
-
         turtle.rotation_euler = [
-            turtle.rotation_euler[0],
-            turtle.rotation_euler[1],
-            turtle.rotation_euler[2] - radians(degrees)]
+        turtle.rotation_euler[0],
+        turtle.rotation_euler[1],
+        turtle.rotation_euler[2] + radians(deg)]
 
-    def rt(degrees):
+    def right_turn(self, degrees):
         """rotate turtle clockwise"""
         turtle = bpy.context.scene.cursor
 
@@ -182,7 +174,7 @@ class heading(bpy.types.Operator):
             turtle.rotation_euler[1],
             turtle.rotation_euler[2] + radians(degrees)]
 
-    def lu(degrees):
+    def look_up(self, degrees):
         """turtle pitch (look) up"""
         turtle = bpy.context.scene.cursor
 
@@ -191,7 +183,7 @@ class heading(bpy.types.Operator):
             turtle.rotation_euler[1],
             turtle.rotation_euler[2]]
             
-    def ld(degrees):
+    def look_down(self, degrees):
         """turtle pitch (look) down"""
         turtle = bpy.context.scene.cursor
 
@@ -200,7 +192,9 @@ class heading(bpy.types.Operator):
             turtle.rotation_euler[1],
             turtle.rotation_euler[2]]
 
-    def setpos(vector):
+    #TODO: implement roll methods
+
+    def set_position(self, vector):
         """move turtle to specified location"""
         bpy.context.scene.cursor.location = (vector)
 
@@ -219,7 +213,7 @@ class heading(bpy.types.Operator):
                     
             bmesh.update_edit_mesh(me, True)
 
-    def seth(degrees):
+    def set_heading(self, degrees):
         """rotate the turtle to the specified horizontal heading (yaw / rotate around z)"""
         turtle = bpy.context.scene.cursor
 
@@ -228,7 +222,7 @@ class heading(bpy.types.Operator):
             turtle.rotation_euler[1],
             radians(degrees)]
 
-    def setp(degrees):
+    def set_pitch(self, degrees):
         """rotate the turtle to the specified vertical heading (pitch aroun x)"""
         turtle = bpy.context.scene.cursor
 
@@ -237,7 +231,7 @@ class heading(bpy.types.Operator):
             turtle.rotation_euler[1],
             turtle.rotation_euler[2]]
 
-    def arc(angle, radius, steps):
+    def arc(self, angle, radius, steps):
         """Without moving the turtle, draw an arc centered on the turtle, 
         starting at the turtle's heading"""
 
@@ -275,21 +269,19 @@ class heading(bpy.types.Operator):
             bm.verts.ensure_lookup_table()
             bm.verts[original_vert].select_set(True)
             bmesh.update_edit_mesh(me, True)
-
-    def clean():
-        """deletes mesh, leaves turtle where it is"""
-        delete_all()
-        if bpy.context.object:
-            bpy.ops.mesh.primitive_vert_add()
-            
-    def qc(cp, ep):
+          
+    def quadratic_curve(self, control_point, end_point):
         """moves the turtle on a path described by a quadratic Bezier curve.
         
         Keyword Arguments:
-        cp -- coordinates of control point
-        ep -- coordinate of end point
+        control_point -- coordinates of control point
+        end_point -- coordinate of end point
 
         """
+
+        cp = control_point
+        ep = end_point
+
         turtle = bpy.context.scene.cursor
 
         if bpy.context.object:
@@ -355,7 +347,7 @@ class heading(bpy.types.Operator):
             turtle.rotation_quaternion = rot_quat
             turtle.rotation_mode = 'XYZ'
 
-    def cc(cp1, cp2, ep):
+    def cubic_curve(self, control_point_1, control_point_2, end_point):
         """moves the turtle on a path described by a cubic Bezier curve.
 
         Keyword Arguments:
@@ -363,6 +355,10 @@ class heading(bpy.types.Operator):
         cp2 -- coordinates of control point2
         ep -- coordinate of end point
         """
+        cp1 = control_point_1
+        cp2 = control_point_2
+        ep = end_point
+
         turtle = bpy.context.scene.cursor
 
         if bpy.context.object:
@@ -433,7 +429,7 @@ class heading(bpy.types.Operator):
             turtle.rotation_quaternion = rot_quat
             turtle.rotation_mode = 'XYZ'
 
-    def beginpath():
+    def beginpath(self):
         """Sets begin_path_vert to index of selected vert
         """
         #TODO: find a better way of updating whether vert is selected!
@@ -448,7 +444,7 @@ class heading(bpy.types.Operator):
                 i += 1
             bpy.ops.object.mode_set(mode='EDIT')
         
-    def strokepath():
+    def strokepath(self):
         """draws an edge between selected vert and vert indexed in beginpath"""
         if bpy.context.object:
             bpy.ops.object.mode_set(mode='OBJECT')
@@ -469,7 +465,7 @@ class heading(bpy.types.Operator):
             bpy.context.object.data.vertices[endpath_vert_index].select = True
             bpy.ops.object.mode_set(mode='EDIT')
             
-    def fillpath():
+    def fillpath(self):
         """draws an edge between selected vert and vert indexed in beginpath
         and then creates a face between all verts created since last beginpath statement"""    
         if bpy.context.object:
@@ -497,7 +493,7 @@ class heading(bpy.types.Operator):
             bpy.context.object.data.vertices[endpath_vert_index].select = True
             bpy.ops.object.mode_set(mode='EDIT')
 
-    def extrudepath(distance):
+    def extrudepath(self, distance):
         """Extrudes the path along its normal"""
         if bpy.context.object:
             bpy.ops.object.mode_set(mode='OBJECT')
@@ -523,4 +519,4 @@ class heading(bpy.types.Operator):
             bpy.ops.object.mode_set(mode='OBJECT')
             bpy.context.object.data.vertices[endpath_vert_index].select = True
             bpy.ops.object.mode_set(mode='EDIT')
-'''
+
