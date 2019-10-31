@@ -20,8 +20,14 @@ class turtle_commands(bpy.types.Operator):
             #check what command has been passed
             if c.startswith('home'):
                 self.home()
-            elif c.startswith('clear_world'):
+            elif c.startswith('cs'):
                 self.clear_world()
+            elif c.startswith('clean'):
+                self.clean()
+            elif c.startswith('pos'):
+                self.position()
+            elif c.startswith('heading'):
+                self.heading()
             elif c.startswith('fd'):
                 #remove first two characters and convert to float
                 self.forward(float(c[2:]))
@@ -63,6 +69,7 @@ class turtle_commands(bpy.types.Operator):
         rot = bpy.context.scene.cursor.rotation_euler
         return (Vector((degrees(rot[0]), degrees(rot[1]), degrees(rot[2]))))
 
+    #pen methods
     def pen_down(self):
         """pen down"""
         bpy.ops.mesh.primitive_vert_add()
@@ -79,6 +86,7 @@ class turtle_commands(bpy.types.Operator):
         bpy.ops.object.editmode_toggle()
         bpy.ops.object.editmode_toggle()
     
+    #movement methods
     def forward(self, distance):
         """move turtle forward"""
         bpy.ops.transform.translate(
