@@ -24,9 +24,66 @@ bl_info = {
 import os
 import bpy
 from . Operators.blended_turtle import OBJECT_OT_add_turtle
-from . commands import*
+from . commands import \
+    TURTLE_OT_clear_screen, \
+    TURTLE_OT_clean, \
+    TURTLE_OT_home, \
+    TURTLE_OT_pen_down, \
+    TURTLE_OT_pen_up, \
+    TURTLE_OT_forward, \
+    TURTLE_OT_backward, \
+    TURTLE_OT_up, \
+    TURTLE_OT_down, \
+    TURTLE_OT_left, \
+    TURTLE_OT_right, \
+    TURTLE_OT_left_turn, \
+    TURTLE_OT_right_turn, \
+    TURTLE_OT_look_up, \
+    TURTLE_OT_look_down, \
+    TURTLE_OT_roll_left, \
+    TURTLE_OT_roll_right, \
+    TURTLE_OT_set_pos, \
+    TURTLE_OT_set_heading, \
+    TURTLE_OT_set_pitch, \
+    TURTLE_OT_set_roll, \
+    TURTLE_OT_quadratic_curve, \
+    TURTLE_OT_cubic_curve, \
+    TURTLE_OT_begin_path, \
+    TURTLE_OT_stroke_path, \
+    TURTLE_OT_fill_path, \
+    TURTLE_OT_extrude_path
+    
+classes = (
+    OBJECT_OT_add_turtle,
+    TURTLE_OT_clear_screen,
+    TURTLE_OT_clean,
+    TURTLE_OT_home,
+    TURTLE_OT_pen_down,
+    TURTLE_OT_pen_up,
+    TURTLE_OT_forward,
+    TURTLE_OT_backward,
+    TURTLE_OT_up,
+    TURTLE_OT_down,
+    TURTLE_OT_left,
+    TURTLE_OT_right,
+    TURTLE_OT_left_turn,
+    TURTLE_OT_right_turn,
+    TURTLE_OT_look_up,
+    TURTLE_OT_look_down,
+    TURTLE_OT_roll_left,
+    TURTLE_OT_roll_right,
+    TURTLE_OT_set_pos,
+    TURTLE_OT_set_heading,
+    TURTLE_OT_set_pitch,
+    TURTLE_OT_set_roll,
+    TURTLE_OT_quadratic_curve,
+    TURTLE_OT_cubic_curve,
+    TURTLE_OT_begin_path,
+    TURTLE_OT_stroke_path,
+    TURTLE_OT_fill_path,
+    TURTLE_OT_extrude_path
+    )
 
-classes = (OBJECT_OT_add_turtle, turtle_commands)
 
 def register():
     for cls in classes:
