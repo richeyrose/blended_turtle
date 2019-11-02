@@ -3,29 +3,27 @@ import bpy
 from bpy.props import StringProperty, FloatProperty, FloatVectorProperty, IntProperty
 import bmesh
 from mathutils import Vector
-from . Utils.utils import select_by_loc
+from .. Utils.utils import select_by_loc
 
 
 class TURTLE_OT_clear_screen(bpy.types.Operator):
     bl_idname = "turtle.cs"
     bl_label = "Clear Turtle World"
-    bl_description = "Deletes mesh in turtle world and homes turtle"
+    bl_description = "Deletes mesh in turtle world and homes turtle."
 
     @classmethod
     def poll(cls, context):
         return context.object.mode == 'EDIT'
 
     def execute(self, context):
-        
+
         bpy.ops.turtle.home()
 
         bpy.ops.mesh.select_all(action='SELECT')
         bpy.ops.mesh.delete()
 
-        if context.object['pendownp']:
-            bpy.ops.mesh.primitive_vert_add()
-
         return {'FINISHED'}
+
 
 class TURTLE_OT_home(bpy.types.Operator):
     bl_idname = "turtle.home"
@@ -39,8 +37,9 @@ class TURTLE_OT_home(bpy.types.Operator):
     def execute(self, context):
         context.scene.cursor.location = context.object.location
         context.scene.cursor.rotation_euler = context.object.rotation_euler
-        
+
         return {'FINISHED'}
+
 
 class TURTLE_OT_clean(bpy.types.Operator):
     bl_idname = "turtle.clean"
@@ -50,15 +49,13 @@ class TURTLE_OT_clean(bpy.types.Operator):
     @classmethod
     def poll(cls, context):
         return context.object.mode == 'EDIT'
-    
+
     def execute(self, context):
         bpy.ops.mesh.select_all(action='SELECT')
         bpy.ops.mesh.delete()
 
-        if bpy.context.object:
-            bpy.ops.mesh.primitive_vert_add()
-
         return {'FINISHED'}
+
 
 class TURTLE_OT_pen_down(bpy.types.Operator):
     bl_idname = "turtle.pd"
@@ -68,7 +65,7 @@ class TURTLE_OT_pen_down(bpy.types.Operator):
     @classmethod
     def poll(cls, context):
         return context.object.mode == 'EDIT'
-        
+
     def execute(self, context):
         bpy.ops.mesh.primitive_vert_add()
         bpy.context.object['pendownp'] = True
@@ -78,6 +75,7 @@ class TURTLE_OT_pen_down(bpy.types.Operator):
 
         return {'FINISHED'}
 
+
 class TURTLE_OT_pen_up(bpy.types.Operator):
     bl_idname = "turtle.pu"
     bl_label = "Pen Up"
@@ -86,7 +84,7 @@ class TURTLE_OT_pen_up(bpy.types.Operator):
     @classmethod
     def poll(cls, context):
         return context.object.mode == 'EDIT'
-        
+
     def execute(self, context):
         bpy.context.object['pendownp'] = False
         bpy.ops.mesh.select_all(action='DESELECT')
@@ -96,10 +94,11 @@ class TURTLE_OT_pen_up(bpy.types.Operator):
 
         return {'FINISHED'}
 
+
 class TURTLE_OT_forward(bpy.types.Operator):
     bl_idname = "turtle.fd"
     bl_label = "Move Forward"
-    bl_description = "Moves the turtle forward"
+    bl_description = "Moves the turtle forward. d = distance in blender units"
 
     d: FloatProperty()
 
@@ -108,23 +107,32 @@ class TURTLE_OT_forward(bpy.types.Operator):
         return context.object.mode == 'EDIT'
 
     def execute(self, context):
+        # make sure selection is properly updated
+        bpy.ops.object.editmode_toggle()
+        bpy.ops.object.editmode_toggle()
+
+        if context.object['pendownp']:
+            if len(bpy.context.object.data.vertices) == 0:
+                bpy.ops.mesh.primitive_vert_add()
+
+            bpy.ops.mesh.extrude_vertices_move(
+                TRANSFORM_OT_translate={
+                    "value": (0, self.d, 0),
+                    "orient_type": 'CURSOR'})
+
         """move turtle forward"""
         bpy.ops.transform.translate(
             value=(0, self.d, 0),
             orient_type='CURSOR',
             cursor_transform=True)
 
-        if context.object['pendownp']:
-            bpy.ops.mesh.extrude_vertices_move(
-                TRANSFORM_OT_translate=
-                {"value":(0, self.d, 0),
-                    "orient_type":'CURSOR'})
         return {'FINISHED'}
+
 
 class TURTLE_OT_backward(bpy.types.Operator):
     bl_idname = "turtle.bk"
     bl_label = "Move Backward"
-    bl_description = "Moves the turtle Backward"
+    bl_description = "Moves the turtle Backward. d = distance in blender units"
 
     d: FloatProperty()
 
@@ -133,22 +141,30 @@ class TURTLE_OT_backward(bpy.types.Operator):
         return context.object.mode == 'EDIT'
 
     def execute(self, context):
+        bpy.ops.object.editmode_toggle()
+        bpy.ops.object.editmode_toggle()
+
+        if context.object['pendownp']:
+            if len(bpy.context.object.data.vertices) == 0:
+                bpy.ops.mesh.primitive_vert_add()
+
+            bpy.ops.mesh.extrude_vertices_move(
+                TRANSFORM_OT_translate={
+                    "value": (0, -self.d, 0),
+                    "orient_type": 'CURSOR'})
+
         bpy.ops.transform.translate(
             value=(0, -self.d, 0),
             orient_type='CURSOR',
             cursor_transform=True)
 
-        if context.object['pendownp']:
-            bpy.ops.mesh.extrude_vertices_move(
-                TRANSFORM_OT_translate=
-                {"value":(0, -self.d, 0),
-                    "orient_type":'CURSOR'})
         return {'FINISHED'}
+
 
 class TURTLE_OT_up(bpy.types.Operator):
     bl_idname = "turtle.up"
     bl_label = "Move Up"
-    bl_description = "Moves the turtle Up"
+    bl_description = "Moves the turtle Up. d = distance in blender units"
 
     d: FloatProperty()
 
@@ -157,22 +173,30 @@ class TURTLE_OT_up(bpy.types.Operator):
         return context.object.mode == 'EDIT'
 
     def execute(self, context):
+        bpy.ops.object.editmode_toggle()
+        bpy.ops.object.editmode_toggle()
+
+        if context.object['pendownp']:
+            if len(bpy.context.object.data.vertices) == 0:
+                bpy.ops.mesh.primitive_vert_add()
+
+            bpy.ops.mesh.extrude_vertices_move(
+                TRANSFORM_OT_translate={
+                    "value": (0, 0, self.d),
+                    "orient_type": 'CURSOR'})
+
         bpy.ops.transform.translate(
             value=(0, 0, self.d),
             orient_type='CURSOR',
             cursor_transform=True)
 
-        if context.object['pendownp']:
-            bpy.ops.mesh.extrude_vertices_move(
-                TRANSFORM_OT_translate=
-                {"value":(0, 0,  self.d),
-                    "orient_type":'CURSOR'})
         return {'FINISHED'}
+
 
 class TURTLE_OT_down(bpy.types.Operator):
     bl_idname = "turtle.dn"
     bl_label = "Move Down"
-    bl_description = "Moves the turtle down"
+    bl_description = "Moves the turtle down. d = distance in blender units"
 
     d: FloatProperty()
 
@@ -181,23 +205,31 @@ class TURTLE_OT_down(bpy.types.Operator):
         return context.object.mode == 'EDIT'
 
     def execute(self, context):
+        bpy.ops.object.editmode_toggle()
+        bpy.ops.object.editmode_toggle()
+
+        if context.object['pendownp']:
+
+            if len(bpy.context.object.data.vertices) == 0:
+                bpy.ops.mesh.primitive_vert_add()
+
+            bpy.ops.mesh.extrude_vertices_move(
+                TRANSFORM_OT_translate={
+                    "value": (0, 0, -self.d),
+                    "orient_type": 'CURSOR'})
+
         bpy.ops.transform.translate(
             value=(0, 0, -self.d),
             orient_type='CURSOR',
             cursor_transform=True)
 
-        if context.object['pendownp']:
-            bpy.ops.mesh.extrude_vertices_move(
-                TRANSFORM_OT_translate=
-                {"value":(0, 0,  -self.d),
-                    "orient_type":'CURSOR'})
         return {'FINISHED'}
 
 
 class TURTLE_OT_left(bpy.types.Operator):
     bl_idname = "turtle.lf"
     bl_label = "Move Left"
-    bl_description = "Moves the turtle left"
+    bl_description = "Moves the turtle left. d = distance in blender units"
 
     d: FloatProperty()
 
@@ -206,22 +238,29 @@ class TURTLE_OT_left(bpy.types.Operator):
         return context.object.mode == 'EDIT'
 
     def execute(self, context):
+        bpy.ops.object.editmode_toggle()
+        bpy.ops.object.editmode_toggle()
+
+        if context.object['pendownp']:
+            if len(bpy.context.object.data.vertices) == 0:
+                bpy.ops.mesh.primitive_vert_add()
+
+            bpy.ops.mesh.extrude_vertices_move(
+                TRANSFORM_OT_translate={
+                    "value": (-self.d, 0, 0),
+                    "orient_type": 'CURSOR'})
+
         bpy.ops.transform.translate(
             value=(-self.d, 0, 0),
             orient_type='CURSOR',
             cursor_transform=True)
-
-        if context.object['pendownp']:
-            bpy.ops.mesh.extrude_vertices_move(
-                TRANSFORM_OT_translate=
-                {"value":( -self.d, 0, 0),
-                    "orient_type":'CURSOR'})
         return {'FINISHED'}
+
 
 class TURTLE_OT_right(bpy.types.Operator):
     bl_idname = "turtle.ri"
     bl_label = "Move Right"
-    bl_description = "Moves the turtle right"
+    bl_description = "Moves the turtle right. d = distance in blender units"
 
     d: FloatProperty()
 
@@ -230,22 +269,29 @@ class TURTLE_OT_right(bpy.types.Operator):
         return context.object.mode == 'EDIT'
 
     def execute(self, context):
+        bpy.ops.object.editmode_toggle()
+        bpy.ops.object.editmode_toggle()
+
+        if context.object['pendownp']:
+            if len(bpy.context.object.data.vertices) == 0:
+                bpy.ops.mesh.primitive_vert_add()
+
+            bpy.ops.mesh.extrude_vertices_move(
+                TRANSFORM_OT_translate={
+                    "value": (self.d, 0, 0),
+                    "orient_type": 'CURSOR'})
+
         bpy.ops.transform.translate(
             value=(self.d, 0, 0),
             orient_type='CURSOR',
             cursor_transform=True)
-
-        if context.object['pendownp']:
-            bpy.ops.mesh.extrude_vertices_move(
-                TRANSFORM_OT_translate=
-                {"value":( self.d, 0, 0),
-                    "orient_type":'CURSOR'})
         return {'FINISHED'}
+
 
 class TURTLE_OT_left_turn(bpy.types.Operator):
     bl_idname = "turtle.lt"
     bl_label = "Rotate left"
-    bl_description = "Rotate the turtle left"
+    bl_description = "Rotate the turtle left. d = degrees"
 
     d: FloatProperty()
 
@@ -256,15 +302,16 @@ class TURTLE_OT_left_turn(bpy.types.Operator):
     def execute(self, context):
         turtle = bpy.context.scene.cursor
         turtle.rotation_euler = [
-        turtle.rotation_euler[0],
-        turtle.rotation_euler[1],
-        turtle.rotation_euler[2] - radians(self.d)]
+            turtle.rotation_euler[0],
+            turtle.rotation_euler[1],
+            turtle.rotation_euler[2] - radians(self.d)]
         return {'FINISHED'}
+
 
 class TURTLE_OT_right_turn(bpy.types.Operator):
     bl_idname = "turtle.rt"
     bl_label = "Rotate reight"
-    bl_description = "Rotate the turtle right"
+    bl_description = "Rotate the turtle right. d = degrees"
 
     d: FloatProperty()
 
@@ -275,15 +322,16 @@ class TURTLE_OT_right_turn(bpy.types.Operator):
     def execute(self, context):
         turtle = bpy.context.scene.cursor
         turtle.rotation_euler = [
-        turtle.rotation_euler[0],
-        turtle.rotation_euler[1],
-        turtle.rotation_euler[2] + radians(self.d)]
+            turtle.rotation_euler[0],
+            turtle.rotation_euler[1],
+            turtle.rotation_euler[2] + radians(self.d)]
         return {'FINISHED'}
+
 
 class TURTLE_OT_look_up(bpy.types.Operator):
     bl_idname = "turtle.lu"
     bl_label = "Turtle look up"
-    bl_description = "Pitch turtle up (look up)"
+    bl_description = "Pitch turtle up (look up). d = degrees"
 
     d: FloatProperty()
 
@@ -294,15 +342,16 @@ class TURTLE_OT_look_up(bpy.types.Operator):
     def execute(self, context):
         turtle = bpy.context.scene.cursor
         turtle.rotation_euler = [
-        turtle.rotation_euler[0] + radians(self.d),
-        turtle.rotation_euler[1],
-        turtle.rotation_euler[2]]
+            turtle.rotation_euler[0] + radians(self.d),
+            turtle.rotation_euler[1],
+            turtle.rotation_euler[2]]
         return {'FINISHED'}
+
 
 class TURTLE_OT_look_down(bpy.types.Operator):
     bl_idname = "turtle.ld"
     bl_label = "Turtle look down"
-    bl_description = "Pitch turtle down (look down)"
+    bl_description = "Pitch turtle down (look down). d = degrees"
 
     d: FloatProperty()
 
@@ -313,15 +362,16 @@ class TURTLE_OT_look_down(bpy.types.Operator):
     def execute(self, context):
         turtle = bpy.context.scene.cursor
         turtle.rotation_euler = [
-        turtle.rotation_euler[0] - radians(self.d),
-        turtle.rotation_euler[1],
-        turtle.rotation_euler[2]]
+            turtle.rotation_euler[0] - radians(self.d),
+            turtle.rotation_euler[1],
+            turtle.rotation_euler[2]]
         return {'FINISHED'}
+
 
 class TURTLE_OT_roll_left(bpy.types.Operator):
     bl_idname = "turtle.rl"
     bl_label = "Turtle roll left"
-    bl_description = "Roll turtle around Y axis"
+    bl_description = "Roll turtle around Y axis. d = degrees"
 
     d: FloatProperty()
 
@@ -332,15 +382,16 @@ class TURTLE_OT_roll_left(bpy.types.Operator):
     def execute(self, context):
         turtle = bpy.context.scene.cursor
         turtle.rotation_euler = [
-        turtle.rotation_euler[0],
-        turtle.rotation_euler[1] - radians(self.d),
-        turtle.rotation_euler[2]]
-        return {'FINISHED'}        
+            turtle.rotation_euler[0],
+            turtle.rotation_euler[1] - radians(self.d),
+            turtle.rotation_euler[2]]
+        return {'FINISHED'}
+
 
 class TURTLE_OT_roll_right(bpy.types.Operator):
     bl_idname = "turtle.rr"
     bl_label = "Turtle roll right"
-    bl_description = "Roll turtle around Y axis"
+    bl_description = "Roll turtle around Y axis. d = degrees"
 
     d: FloatProperty()
 
@@ -351,10 +402,11 @@ class TURTLE_OT_roll_right(bpy.types.Operator):
     def execute(self, context):
         turtle = bpy.context.scene.cursor
         turtle.rotation_euler = [
-        turtle.rotation_euler[0],
-        turtle.rotation_euler[1] + radians(self.d),
-        turtle.rotation_euler[2]]
+            turtle.rotation_euler[0],
+            turtle.rotation_euler[1] + radians(self.d),
+            turtle.rotation_euler[2]]
         return {'FINISHED'}
+
 
 class TURTLE_OT_set_pos(bpy.types.Operator):
     bl_idname = "turtle.setp"
@@ -368,17 +420,22 @@ class TURTLE_OT_set_pos(bpy.types.Operator):
         return context.object.mode == 'EDIT'
 
     def execute(self, context):
-        bpy.context.scene.cursor.location = (self.v)
-        if bpy.context.object:
-            bpy.ops.mesh.extrude_vertices_move(
-                TRANSFORM_OT_translate=
-                {"value":(self.v),
-                "orient_type":'CURSOR'})
-        
+
         bpy.ops.object.editmode_toggle()
         bpy.ops.object.editmode_toggle()
 
+        if bpy.context.object['pendownp']:
+            if len(bpy.context.object.data.vertices) == 0:
+                bpy.ops.mesh.primitive_vert_add()
+
+            bpy.ops.mesh.extrude_vertices_move(
+                TRANSFORM_OT_translate={
+                    "value": (self.v),
+                    "orient_type": 'CURSOR'})
+
+        bpy.context.scene.cursor.location = (self.v)
         return {'FINISHED'}
+
 
 class TURTLE_OT_set_heading(bpy.types.Operator):
     bl_idname = "turtle.seth"
