@@ -18,9 +18,7 @@ class TURTLE_OT_clear_screen(bpy.types.Operator):
     def execute(self, context):
 
         bpy.ops.turtle.home()
-
-        bpy.ops.mesh.select_all(action='SELECT')
-        bpy.ops.mesh.delete()
+        bpy.ops.turtle.clean()
 
         return {'FINISHED'}
 
@@ -53,6 +51,7 @@ class TURTLE_OT_clean(bpy.types.Operator):
     def execute(self, context):
         bpy.ops.mesh.select_all(action='SELECT')
         bpy.ops.mesh.delete()
+        context.object['beginpath_active_vert'] = 0
 
         return {'FINISHED'}
 
@@ -738,28 +737,20 @@ Keyword Arguments: cp1 / cp2 = coordinates of control points, ep = end point"
 class TURTLE_OT_begin_path(bpy.types.Operator):
     bl_idname = "turtle.bp"
     bl_label = "Begin path"
-    bl_description = "Sets begin_path_vert to index of selected vert"
+    bl_description = "Sets begin_path_vert to index of last vert that has been drawn"
 
     @classmethod
     def poll(cls, context):
         return context.object.mode == 'EDIT'
 
     def execute(self, context):
+        bpy.ops.object.editmode_toggle()
+        bpy.ops.object.editmode_toggle()
 
-        if bpy.context.object.get('beginpath_active_vert') is None:
-            # pen state
-            bpy.context.object['beginpath_active_vert'] = True
+        verts = bpy.context.object.data.vertices
+        bpy.context.object['beginpath_active_vert'] = verts.values()[-1].index
 
-        if bpy.context.object:
-            bpy.ops.object.mode_set(mode='OBJECT')
-            verts = bpy.context.object.data.vertices
-            i = 0
-            for v in verts:
-                if v.select:
-                    bpy.context.object['beginpath_active_vert'] = i
-                i += 1
-            bpy.ops.object.mode_set(mode='EDIT')
-        return {'FINSIHED'}
+        return {'FINISHED'}
 
 
 class TURTLE_OT_stroke_path(bpy.types.Operator):
@@ -772,32 +763,28 @@ class TURTLE_OT_stroke_path(bpy.types.Operator):
         return context.object.mode == 'EDIT'
 
     def execute(self, context):
-
         if bpy.context.object.get('beginpath_active_vert') is None:
-            # pen state
-            bpy.context.object['beginpath_active_vert'] = True
+            return {'PASS_THROUGH'}
 
-        """draws an edge between selected vert and vert indexed in beginpath"""
-        if bpy.context.object:
-            bpy.ops.object.mode_set(mode='OBJECT')
-            verts = bpy.context.object.data.vertices
-            endpath_vert_index = 0
+        bpy.ops.object.editmode_toggle()
 
-            i = 0
-            for v in verts:
-                if v.select:
-                    endpath_vert_index = i
-                i += 1
+        verts = bpy.context.object.data.vertices
 
-            bpy.context.object.data.vertices[bpy.context.object['beginpath_active_vert']].select = True
-            bpy.ops.object.mode_set(mode='EDIT')
-            bpy.ops.mesh.edge_face_add()
-            bpy.ops.mesh.select_all(action='DESELECT')
-            bpy.ops.object.mode_set(mode='OBJECT')
-            bpy.context.object.data.vertices[endpath_vert_index].select = True
-            bpy.ops.object.mode_set(mode='EDIT')
+        bpy.context.object.data.vertices[-1].select = True
+        bpy.context.object.data.vertices[bpy.context.object['beginpath_active_vert']].select = True
 
-        return {'FINSIHED'}
+        bpy.ops.object.editmode_toggle()
+
+        bpy.ops.mesh.edge_face_add()
+        bpy.ops.mesh.select_all(action='DESELECT')
+
+        bpy.ops.object.editmode_toggle()
+
+        bpy.context.object.data.vertices[-1].select = True
+
+        bpy.ops.object.editmode_toggle()
+
+        return {'FINISHED'}
 
 
 class TURTLE_OT_fill_path(bpy.types.Operator):
@@ -812,77 +799,88 @@ class TURTLE_OT_fill_path(bpy.types.Operator):
     def execute(self, context):
 
         if bpy.context.object.get('beginpath_active_vert') is None:
-            # pen state
-            bpy.context.object['beginpath_active_vert'] = True
+            return {'PASS_THROUGH'}
 
-        if bpy.context.object:
-            bpy.ops.object.mode_set(mode='OBJECT')
-            verts = bpy.context.object.data.vertices
+        bpy.ops.object.editmode_toggle()
 
-            endpath_vert_index = 0
+        verts = bpy.context.object.data.vertices
 
-            i = 0
-            for v in verts:
-                if v.select:
-                    endpath_vert_index = i
-                i += 1
+        i = bpy.context.object['beginpath_active_vert']
 
-            i = bpy.context.object['beginpath_active_vert']
-            while i < endpath_vert_index:
-                bpy.context.object.data.vertices[i].select = True
-                i += 1
+        while i <= verts.values()[-1].index:
+            bpy.context.object.data.vertices[i].select = True
+            i += 1
 
-            bpy.ops.object.mode_set(mode='EDIT')
-            bpy.ops.mesh.edge_face_add()
-            bpy.ops.mesh.edge_face_add()
-            bpy.ops.mesh.select_all(action='DESELECT')
-            bpy.ops.object.mode_set(mode='OBJECT')
-            bpy.context.object.data.vertices[endpath_vert_index].select = True
-            bpy.ops.object.mode_set(mode='EDIT')
+        bpy.ops.object.editmode_toggle()
+
+        bpy.ops.mesh.edge_face_add()
+        bpy.ops.mesh.edge_face_add()
+
+        bpy.ops.mesh.select_all(action='DESELECT')
+
+        bpy.ops.object.editmode_toggle()
+        bpy.ops.object.editmode_toggle()
+
+        bpy.context.object.data.vertices[-1].select = True
 
         return {'FINISHED'}
 
 
-class TURTLE_OT_extrude_path(bpy.types.Operator):
-    bl_idname = "turtle.ep"
-    bl_label = "Extrude path"
-    bl_description = "Extrudes the path along its normal. d = distance in blender units"
+class TURTLE_OT_select_path(bpy.types.Operator):
+    bl_idname = "turtle.selp"
+    bl_label = "Select Path"
+    bl_description = "Selects all verts drawn since last Begin Path command"
 
     @classmethod
     def poll(cls, context):
         return context.object.mode == 'EDIT'
 
-    d: FloatProperty()
+    def execute(self, context):
+        bpy.ops.object.editmode_toggle()
+
+        verts = bpy.context.object.data.vertices
+
+        i = bpy.context.object['beginpath_active_vert']
+        while i <= verts.values()[-1].index:
+            bpy.context.object.data.vertices[i].select = True
+            i += 1
+
+        bpy.ops.object.editmode_toggle()
+
+        return {'FINISHED'}
+
+
+class TURTLE_OT_select_all(bpy.types.Operator):
+    bl_idname = "turtle.sa"
+    bl_label = "Select All"
+    bl_description = "Selects All Vertices"
+
+    @classmethod
+    def poll(cls, context):
+        return context.object.mode == 'EDIT'
 
     def execute(self, context):
 
-        if bpy.context.object.get('beginpath_active_vert') is None:
-            # pen state
-            bpy.context.object['beginpath_active_vert'] = True
+        bpy.ops.object.editmode_toggle()
+        bpy.ops.object.editmode_toggle()
 
-        if bpy.context.object:
-            bpy.ops.object.mode_set(mode='OBJECT')
-            verts = bpy.context.object.data.vertices
+        bpy.ops.mesh.select_all(action='SELECT')
 
-            endpath_vert_index = 0
+        return {'FINISHED'}
 
-            i = 0
-            for v in verts:
-                if v.select:
-                    endpath_vert_index = i
-                i += 1
 
-            i = bpy.context.object['beginpath_active_vert']
-            while i < endpath_vert_index:
-                bpy.context.object.data.vertices[i].select = True
-                i += 1
+class TURTLE_OT_extrude(bpy.types.Operator):
+    bl_idname = "turtle.ex"
+    bl_label = "Extrude Selected"
+    bl_description = "Extrudes Selected Vertices. d = extrude distance in blender units"
 
-            bpy.ops.object.mode_set(mode='EDIT')
-            bpy.ops.mesh.extrude_region_move(
-                TRANSFORM_OT_translate={"value": (0, 0, self.d)})
-            bpy.ops.mesh.select_all(action='DESELECT')
-            bpy.ops.object.mode_set(mode='OBJECT')
-            bpy.context.object.data.vertices[endpath_vert_index].select = True
-            bpy.ops.object.mode_set(mode='EDIT')
+    d: FloatProperty()
 
+    @classmethod
+    def poll(cls, context):
+        return context.object.mode == 'EDIT'
+
+    def execute(self, context):
+        bpy.ops.mesh.extrude_region_move(
+            TRANSFORM_OT_translate={"value": (0, 0, self.d)})
         return {'FINISHED'}

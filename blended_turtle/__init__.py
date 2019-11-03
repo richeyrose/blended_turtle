@@ -56,7 +56,10 @@ classes = (
     TURTLE_OT_begin_path,
     TURTLE_OT_stroke_path,
     TURTLE_OT_fill_path,
-    TURTLE_OT_extrude_path)
+    TURTLE_OT_extrude_path,
+    TURTLE_OT_select_all,
+    TURTLE_OT_extrude,
+    TURTLE_OT_select_path)
 
 
 def register():
