@@ -129,7 +129,7 @@ Whether the pen is up or down determines whether the turtle will draw edges as i
     bpy.ops.turtle.pd()
    Raises the pen so the turtle WILL draw on move
    
-# Canvas commands
+## Canvas commands
 Commands for homing the turtle and clearing the canvas
 
     bpy.ops.turtle.home()
