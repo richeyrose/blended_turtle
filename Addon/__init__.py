@@ -47,6 +47,7 @@ classes = (
     TURTLE_OT_roll_left,
     TURTLE_OT_roll_right,
     TURTLE_OT_set_pos,
+    TURTLE_OT_set_rotation,
     TURTLE_OT_set_heading,
     TURTLE_OT_set_pitch,
     TURTLE_OT_set_roll,

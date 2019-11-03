@@ -111,16 +111,28 @@ class TURTLE_OT_forward(bpy.types.Operator):
         bpy.ops.object.editmode_toggle()
         bpy.ops.object.editmode_toggle()
 
+        """ check our object has a "pendownp" property that
+         describes the pen state and if not add one"""
+        if bpy.context.object.get('pendownp') is None:
+            # pen state
+            bpy.context.object['pendownp'] = True
+
+        # check if pen is down
         if context.object['pendownp']:
             if len(bpy.context.object.data.vertices) == 0:
                 bpy.ops.mesh.primitive_vert_add()
 
+            # ensure that we only select the vert that the cursor is on
+            turtle_location = bpy.context.scene.cursor.location
+            select_by_loc(lbound=turtle_location, ubound=turtle_location)
+
+            # extrude vert along cursor Y
             bpy.ops.mesh.extrude_vertices_move(
                 TRANSFORM_OT_translate={
                     "value": (0, self.d, 0),
                     "orient_type": 'CURSOR'})
 
-        """move turtle forward"""
+        # move turtle forward
         bpy.ops.transform.translate(
             value=(0, self.d, 0),
             orient_type='CURSOR',
@@ -143,6 +155,10 @@ class TURTLE_OT_backward(bpy.types.Operator):
     def execute(self, context):
         bpy.ops.object.editmode_toggle()
         bpy.ops.object.editmode_toggle()
+
+        if bpy.context.object.get('pendownp') is None:
+            # pen state
+            bpy.context.object['pendownp'] = True
 
         if context.object['pendownp']:
             if len(bpy.context.object.data.vertices) == 0:
@@ -176,6 +192,10 @@ class TURTLE_OT_up(bpy.types.Operator):
         bpy.ops.object.editmode_toggle()
         bpy.ops.object.editmode_toggle()
 
+        if bpy.context.object.get('pendownp') is None:
+            # pen state
+            bpy.context.object['pendownp'] = True
+
         if context.object['pendownp']:
             if len(bpy.context.object.data.vertices) == 0:
                 bpy.ops.mesh.primitive_vert_add()
@@ -207,6 +227,10 @@ class TURTLE_OT_down(bpy.types.Operator):
     def execute(self, context):
         bpy.ops.object.editmode_toggle()
         bpy.ops.object.editmode_toggle()
+
+        if bpy.context.object.get('pendownp') is None:
+            # pen state
+            bpy.context.object['pendownp'] = True
 
         if context.object['pendownp']:
 
@@ -241,6 +265,10 @@ class TURTLE_OT_left(bpy.types.Operator):
         bpy.ops.object.editmode_toggle()
         bpy.ops.object.editmode_toggle()
 
+        if bpy.context.object.get('pendownp') is None:
+            # pen state
+            bpy.context.object['pendownp'] = True
+
         if context.object['pendownp']:
             if len(bpy.context.object.data.vertices) == 0:
                 bpy.ops.mesh.primitive_vert_add()
@@ -272,6 +300,10 @@ class TURTLE_OT_right(bpy.types.Operator):
         bpy.ops.object.editmode_toggle()
         bpy.ops.object.editmode_toggle()
 
+        if bpy.context.object.get('pendownp') is None:
+            # pen state
+            bpy.context.object['pendownp'] = True
+
         if context.object['pendownp']:
             if len(bpy.context.object.data.vertices) == 0:
                 bpy.ops.mesh.primitive_vert_add()
@@ -300,11 +332,12 @@ class TURTLE_OT_left_turn(bpy.types.Operator):
         return context.object.mode == 'EDIT'
 
     def execute(self, context):
+
         turtle = bpy.context.scene.cursor
         turtle.rotation_euler = [
             turtle.rotation_euler[0],
             turtle.rotation_euler[1],
-            turtle.rotation_euler[2] - radians(self.d)]
+            turtle.rotation_euler[2] + radians(self.d)]
         return {'FINISHED'}
 
 
@@ -324,7 +357,7 @@ class TURTLE_OT_right_turn(bpy.types.Operator):
         turtle.rotation_euler = [
             turtle.rotation_euler[0],
             turtle.rotation_euler[1],
-            turtle.rotation_euler[2] + radians(self.d)]
+            turtle.rotation_euler[2] - radians(self.d)]
         return {'FINISHED'}
 
 
@@ -421,6 +454,10 @@ class TURTLE_OT_set_pos(bpy.types.Operator):
 
     def execute(self, context):
 
+        if bpy.context.object.get('pendownp') is None:
+            # pen state
+            bpy.context.object['pendownp'] = True
+
         bpy.ops.object.editmode_toggle()
         bpy.ops.object.editmode_toggle()
 
@@ -434,6 +471,27 @@ class TURTLE_OT_set_pos(bpy.types.Operator):
                     "orient_type": 'CURSOR'})
 
         bpy.context.scene.cursor.location = (self.v)
+        return {'FINISHED'}
+
+
+class TURTLE_OT_set_rotation(bpy.types.Operator):
+    bl_idname = "turtle.setrot"
+    bl_label = "Set turtle rotation"
+    bl_description = "Set the turtles rotation. v = rotation in degrees (0, 0, 0)"
+
+    v: FloatVectorProperty()
+
+    @classmethod
+    def poll(cls, context):
+        return context.object.mode == 'EDIT'
+
+    def execute(self, context):
+        turtle = bpy.context.scene.cursor
+
+        turtle.rotation_euler = [
+            radians(self.v[0]),
+            radians(self.v[1]),
+            radians(self.v[2])]
         return {'FINISHED'}
 
 
@@ -515,6 +573,10 @@ class TURTLE_OT_quadratic_curve(bpy.types.Operator):
 
     def execute(self, context):
         turtle = bpy.context.scene.cursor
+
+        if bpy.context.object.get('pendownp') is None:
+            # pen state
+            bpy.context.object['pendownp'] = True
 
         if bpy.context.object['pendownp']:
             world = bpy.context.object
@@ -599,6 +661,10 @@ Keyword Arguments: cp1 / cp2 = coordinates of control points, ep = end point"
 
         turtle = bpy.context.scene.cursor
 
+        if bpy.context.object.get('pendownp') is None:
+            # pen state
+            bpy.context.object['pendownp'] = True
+
         if bpy.context.object['pendownp']:
             canvas = bpy.context.object
             canvas_name = canvas.name
@@ -679,6 +745,11 @@ class TURTLE_OT_begin_path(bpy.types.Operator):
         return context.object.mode == 'EDIT'
 
     def execute(self, context):
+
+        if bpy.context.object.get('beginpath_active_vert') is None:
+            # pen state
+            bpy.context.object['beginpath_active_vert'] = True
+
         if bpy.context.object:
             bpy.ops.object.mode_set(mode='OBJECT')
             verts = bpy.context.object.data.vertices
@@ -701,6 +772,11 @@ class TURTLE_OT_stroke_path(bpy.types.Operator):
         return context.object.mode == 'EDIT'
 
     def execute(self, context):
+
+        if bpy.context.object.get('beginpath_active_vert') is None:
+            # pen state
+            bpy.context.object['beginpath_active_vert'] = True
+
         """draws an edge between selected vert and vert indexed in beginpath"""
         if bpy.context.object:
             bpy.ops.object.mode_set(mode='OBJECT')
@@ -734,6 +810,11 @@ class TURTLE_OT_fill_path(bpy.types.Operator):
         return context.object.mode == 'EDIT'
 
     def execute(self, context):
+
+        if bpy.context.object.get('beginpath_active_vert') is None:
+            # pen state
+            bpy.context.object['beginpath_active_vert'] = True
+
         if bpy.context.object:
             bpy.ops.object.mode_set(mode='OBJECT')
             verts = bpy.context.object.data.vertices
@@ -765,7 +846,7 @@ class TURTLE_OT_fill_path(bpy.types.Operator):
 class TURTLE_OT_extrude_path(bpy.types.Operator):
     bl_idname = "turtle.ep"
     bl_label = "Extrude path"
-    bl_description = "Extrudes the path along its normal"
+    bl_description = "Extrudes the path along its normal. d = distance in blender units"
 
     @classmethod
     def poll(cls, context):
@@ -774,6 +855,11 @@ class TURTLE_OT_extrude_path(bpy.types.Operator):
     d: FloatProperty()
 
     def execute(self, context):
+
+        if bpy.context.object.get('beginpath_active_vert') is None:
+            # pen state
+            bpy.context.object['beginpath_active_vert'] = True
+
         if bpy.context.object:
             bpy.ops.object.mode_set(mode='OBJECT')
             verts = bpy.context.object.data.vertices

@@ -75,6 +75,7 @@ def in_bbox(lbound, ubound, v, buffer=0.001):
         lbound[1]-buffer<=v[1]<=ubound[1]+buffer and \
         lbound[2]-buffer<=v[2]<=ubound[2]+buffer
 
+
 def select_by_loc(
         lbound=(0,0,0),
         ubound=(0,0,0),
