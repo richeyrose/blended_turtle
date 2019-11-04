@@ -869,6 +869,25 @@ class TURTLE_OT_select_all(bpy.types.Operator):
         return {'FINISHED'}
 
 
+class TURTLE_OT_deselect_all(bpy.types.Operator):
+    bl_idname = "turtle.da"
+    bl_label = "Select All"
+    bl_description = "Selects All Vertices"
+
+    @classmethod
+    def poll(cls, context):
+        return context.object.mode == 'EDIT'
+
+    def execute(self, context):
+
+        bpy.ops.object.editmode_toggle()
+        bpy.ops.object.editmode_toggle()
+
+        bpy.ops.mesh.select_all(action='DESELECT')
+
+        return {'FINISHED'}
+
+
 class TURTLE_OT_extrude(bpy.types.Operator):
     bl_idname = "turtle.ex"
     bl_label = "Extrude Selected"
@@ -882,5 +901,5 @@ class TURTLE_OT_extrude(bpy.types.Operator):
 
     def execute(self, context):
         bpy.ops.mesh.extrude_region_move(
-            TRANSFORM_OT_translate={"value": (0, 0, self.d)})
+            TRANSFORM_OT_translate={"value": (0, 0, self.d),"orient_type": 'NORMAL'})
         return {'FINISHED'}

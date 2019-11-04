@@ -57,6 +57,7 @@ classes = (
     TURTLE_OT_stroke_path,
     TURTLE_OT_fill_path,
     TURTLE_OT_select_all,
+    TURTLE_OT_deselect_all,
     TURTLE_OT_extrude,
     TURTLE_OT_select_path)
 

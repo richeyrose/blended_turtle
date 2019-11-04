@@ -147,3 +147,6 @@ Commands for homing the turtle and clearing the canvas
 ## Other
     bpy.ops.turtle.sa()
    Selects all vertices
+
+    bpy.ops.turtle.da()
+   Deselects all vertices
