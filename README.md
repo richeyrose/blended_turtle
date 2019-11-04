@@ -117,8 +117,11 @@ Once you have drawn your path you can extrude it into 3D using the "extrude path
     bpy.ops.turtle.fp()
    Draws an edge between selected vert and vert indexed by begin path command and then creates a face between all vertices created since the last beginpath statement
    
-    bpy.ops.turtle.ep(d=0) 
-   Extrudes the path along its normal. d = distance in blender units
+    bpy.ops.turtle.selp() 
+   Selects all verts drawn since last Begin Path command
+   
+    bpy.ops.turtle.ex(d=0)
+   Extrudes slected vertices along normal. d = distance in blender units
    
 ## Pen commands
 Whether the pen is up or down determines whether the turtle will draw edges as it moves
@@ -141,3 +144,6 @@ Commands for homing the turtle and clearing the canvas
     bpy.ops.turtle.cs()
    Deletes the mesh and homes the turtle
    
+## Other
+    bpy.ops.turtle.sa()
+   Selects all vertices
