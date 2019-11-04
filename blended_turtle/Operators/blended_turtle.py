@@ -7,7 +7,7 @@ from .. Utils.utils import select, activate
 
 class OBJECT_OT_add_turtle(Operator, AddObjectHelper):
     """Adds an empty turtle world"""
-    bl_idname = "turtle.primitive_turtle_add"
+    bl_idname = "turtle.add_turtle"
     bl_label = "Add Turtle"
     bl_description = "Adds an empty turtle world"
     bl_options = {'REGISTER', 'UNDO'}

@@ -6,6 +6,17 @@ from mathutils import Vector
 from .. Utils.utils import select_by_loc
 
 
+class TURTLE_OT_clear_screen_alias(bpy.types.Operator):
+    bl_idname = "turtle.clear_screen"
+    bl_label = "Clear Turtle World"
+    bl_description = "Deletes mesh in turtle world and homes turtle."
+
+    def execute(self, context):
+        bpy.ops.turtle.cs()
+
+        return {'FINISHED'}
+
+
 class TURTLE_OT_clear_screen(bpy.types.Operator):
     bl_idname = "turtle.cs"
     bl_label = "Clear Turtle World"
@@ -55,9 +66,20 @@ class TURTLE_OT_clean(bpy.types.Operator):
 
         if bpy.context.object['pendownp']:
             bpy.ops.mesh.primitive_vert_add()
-        
+
         bpy.ops.object.editmode_toggle()
         bpy.ops.object.editmode_toggle()
+
+        return {'FINISHED'}
+
+
+class TURTLE_OT_pen_down_alias(bpy.types.Operator):
+    bl_idname = "turtle.pen_down"
+    bl_label = "Pend Down"
+    bl_description = "Lowers the pen so that the turtle will draw on move"
+
+    def execute(self, context):
+        bpy.ops.turtle.pd()
 
         return {'FINISHED'}
 
@@ -81,6 +103,16 @@ class TURTLE_OT_pen_down(bpy.types.Operator):
         return {'FINISHED'}
 
 
+class TURTLE_OT_pen_up_alias(bpy.types.Operator):
+    bl_idname = "turtle.pen_up"
+    bl_label = "Pen Up"
+    bl_description = "Raises the pen so that the turtle will NOT draw on move"
+
+    def execute(self, context):
+        bpy.ops.turtle.pu()
+        return {'FINISHED'}
+
+
 class TURTLE_OT_pen_up(bpy.types.Operator):
     bl_idname = "turtle.pu"
     bl_label = "Pen Up"
@@ -96,6 +128,19 @@ class TURTLE_OT_pen_up(bpy.types.Operator):
 
         bpy.ops.object.editmode_toggle()
         bpy.ops.object.editmode_toggle()
+
+        return {'FINISHED'}
+
+
+class TURTLE_OT_forward_alias(bpy.types.Operator):
+    bl_idname = "turtle.forward"
+    bl_label = "Move Forward"
+    bl_description = "Moves the turtle forward. d = distance in blender units"
+
+    d: FloatProperty()
+
+    def execute(self, context):
+        bpy.ops.turtle.fd(d=self.d)
 
         return {'FINISHED'}
 
@@ -139,6 +184,18 @@ class TURTLE_OT_forward(bpy.types.Operator):
             orient_type='CURSOR',
             cursor_transform=True)
 
+        return {'FINISHED'}
+
+
+class TURTLE_OT_backward_alias(bpy.types.Operator):
+    bl_idname = "turtle.backward"
+    bl_label = "Move Backward"
+    bl_description = "Moves the turtle Backward. d = distance in blender units"
+
+    d: FloatProperty()
+
+    def execute(self, context):
+        bpy.op.turtle.bk(d=self.d)
         return {'FINISHED'}
 
 
@@ -214,6 +271,18 @@ class TURTLE_OT_up(bpy.types.Operator):
         return {'FINISHED'}
 
 
+class TURTLE_OT_down_alias(bpy.types.Operator):
+    bl_idname = "turtle.down"
+    bl_label = "Move Down"
+    bl_description = "Moves the turtle down. d = distance in blender units"
+
+    d: FloatProperty()
+
+    def execute(self, context):
+        bpy.ops.turtle.dn(d=self.d)
+        return {'FINISHED'}
+
+
 class TURTLE_OT_down(bpy.types.Operator):
     bl_idname = "turtle.dn"
     bl_label = "Move Down"
@@ -248,6 +317,18 @@ class TURTLE_OT_down(bpy.types.Operator):
             orient_type='CURSOR',
             cursor_transform=True)
 
+        return {'FINISHED'}
+
+
+class TURTLE_OT_left_alias(bpy.types.Operator):
+    bl_idname = "turtle.left"
+    bl_label = "Move Left"
+    bl_description = "Moves the turtle left. d = distance in blender units"
+
+    d: FloatProperty()
+
+    def execute(self, context):
+        bpy.ops.turtle.lf(d=self.d)
         return {'FINISHED'}
 
 
@@ -286,6 +367,18 @@ class TURTLE_OT_left(bpy.types.Operator):
         return {'FINISHED'}
 
 
+class TURTLE_OT_right_alias(bpy.types.Operator):
+    bl_idname = "turtle.right"
+    bl_label = "Move Right"
+    bl_description = "Moves the turtle right. d = distance in blender units"
+
+    d: FloatProperty()
+
+    def execute(self, context):
+        bpy.ops.turtle.ri(d=self.d)
+        return {'FINISHED'}
+
+
 class TURTLE_OT_right(bpy.types.Operator):
     bl_idname = "turtle.ri"
     bl_label = "Move Right"
@@ -321,6 +414,18 @@ class TURTLE_OT_right(bpy.types.Operator):
         return {'FINISHED'}
 
 
+class TURTLE_OT_left_turn_alias(bpy.types.Operator):
+    bl_idname = "turtle.left_turn"
+    bl_label = "Rotate left"
+    bl_description = "Rotate the turtle left. d = degrees"
+
+    d: FloatProperty()
+
+    def execute(self, context):
+        bpy.ops.lt(d=self.d)
+        return {'FINISHED'}
+
+
 class TURTLE_OT_left_turn(bpy.types.Operator):
     bl_idname = "turtle.lt"
     bl_label = "Rotate left"
@@ -339,6 +444,18 @@ class TURTLE_OT_left_turn(bpy.types.Operator):
             turtle.rotation_euler[0],
             turtle.rotation_euler[1],
             turtle.rotation_euler[2] + radians(self.d)]
+        return {'FINISHED'}
+
+
+class TURTLE_OT_right_turn_alias(bpy.types.Operator):
+    bl_idname = "turtle.right_turn"
+    bl_label = "Rotate reight"
+    bl_description = "Rotate the turtle right. d = degrees"
+
+    d: FloatProperty()
+
+    def execute(self, context):
+        bpy.ops.turtle.rt(d=self.d)
         return {'FINISHED'}
 
 
@@ -362,6 +479,19 @@ class TURTLE_OT_right_turn(bpy.types.Operator):
         return {'FINISHED'}
 
 
+class TURTLE_OT_look_up_alias(bpy.types.Operator):
+    bl_idname = "turtle.look_up"
+    bl_label = "Turtle look up"
+    bl_description = "Pitch turtle up (look up). d = degrees"
+
+    d: FloatProperty()
+
+    def execute(self, context):
+        bpy.ops.turtle.lu(d=self.d)
+
+        return {'FINISHED'}
+
+
 class TURTLE_OT_look_up(bpy.types.Operator):
     bl_idname = "turtle.lu"
     bl_label = "Turtle look up"
@@ -379,6 +509,18 @@ class TURTLE_OT_look_up(bpy.types.Operator):
             turtle.rotation_euler[0] + radians(self.d),
             turtle.rotation_euler[1],
             turtle.rotation_euler[2]]
+        return {'FINISHED'}
+
+
+class TURTLE_OT_look_down_alias(bpy.types.Operator):
+    bl_idname = "turtle.look_down"
+    bl_label = "Turtle look down"
+    bl_description = "Pitch turtle down (look down). d = degrees"
+
+    d: FloatProperty()
+
+    def execute(self, context):
+        bpy.ops.turtle.ld(d=self.d)
         return {'FINISHED'}
 
 
@@ -402,6 +544,18 @@ class TURTLE_OT_look_down(bpy.types.Operator):
         return {'FINISHED'}
 
 
+class TURTLE_OT_roll_left_alias(bpy.types.Operator):
+    bl_idname = "turtle.roll_left"
+    bl_label = "Turtle roll left"
+    bl_description = "Roll turtle around Y axis. d = degrees"
+
+    d: FloatProperty()
+
+    def execute(self, context):
+        bpy.ops.turtle.rl(d=self.d)
+        return {'FINISHED'}
+
+
 class TURTLE_OT_roll_left(bpy.types.Operator):
     bl_idname = "turtle.rl"
     bl_label = "Turtle roll left"
@@ -422,6 +576,18 @@ class TURTLE_OT_roll_left(bpy.types.Operator):
         return {'FINISHED'}
 
 
+class TURTLE_OT_roll_right_alias(bpy.types.Operator):
+    bl_idname = "turtle.roll_right"
+    bl_label = "Turtle roll right"
+    bl_description = "Roll turtle around Y axis. d = degrees"
+
+    d: FloatProperty()
+
+    def execute(self, context):
+        bpy.ops.turtle.rr(d=self.d)
+        return {'FINISHED'}
+
+
 class TURTLE_OT_roll_right(bpy.types.Operator):
     bl_idname = "turtle.rr"
     bl_label = "Turtle roll right"
@@ -439,6 +605,18 @@ class TURTLE_OT_roll_right(bpy.types.Operator):
             turtle.rotation_euler[0],
             turtle.rotation_euler[1] + radians(self.d),
             turtle.rotation_euler[2]]
+        return {'FINISHED'}
+
+
+class TURTLE_OT_set_pos_alias(bpy.types.Operator):
+    bl_idname = "turtle.set_position"
+    bl_label = "Set turtle posiiton"
+    bl_description = "moves the turtle to the specified location. v = location"
+
+    v: FloatVectorProperty()
+
+    def execute(self, context):
+        bpy.ops.turtle.setp(v=self.v)
         return {'FINISHED'}
 
 
@@ -475,6 +653,18 @@ class TURTLE_OT_set_pos(bpy.types.Operator):
         return {'FINISHED'}
 
 
+class TURTLE_OT_set_rotation_alias(bpy.types.Operator):
+    bl_idname = "turtle.set_rotation"
+    bl_label = "Set turtle rotation"
+    bl_description = "Set the turtles rotation. v = rotation in degrees (0, 0, 0)"
+
+    v: FloatVectorProperty()
+
+    def execute(self, context):
+        bpy.ops.turtle.setrot(v=self.v)
+        return {'FINISHED'}
+
+
 class TURTLE_OT_set_rotation(bpy.types.Operator):
     bl_idname = "turtle.setrot"
     bl_label = "Set turtle rotation"
@@ -493,6 +683,18 @@ class TURTLE_OT_set_rotation(bpy.types.Operator):
             radians(self.v[0]),
             radians(self.v[1]),
             radians(self.v[2])]
+        return {'FINISHED'}
+
+
+class TURTLE_OT_set_heading_alias(bpy.types.Operator):
+    bl_idname = "turtle.set_heading"
+    bl_label = "Set turtle heading"
+    bl_description = "Rotate the turtle to face the specified horizontal heading. d = degrees"
+
+    d: FloatProperty()
+
+    def execute(self, context):
+        bpy.ops.turtle.seth(d=self.d)
         return {'FINISHED'}
 
 
@@ -518,7 +720,7 @@ class TURTLE_OT_set_heading(bpy.types.Operator):
 
 
 class TURTLE_OT_set_pitch(bpy.types.Operator):
-    bl_idname = "turtle.setpitch"
+    bl_idname = "turtle.set_pitch"
     bl_label = "Set turtle pitch"
     bl_description = "Rotate the turtle to face the specified pitch on the X axis. d = degrees"
 
@@ -535,6 +737,18 @@ class TURTLE_OT_set_pitch(bpy.types.Operator):
             radians(self.d),
             turtle.rotation_euler[1],
             turtle.rotation_euler[2]]
+        return {'FINISHED'}
+
+
+class TURTLE_OT_set_roll_alias(bpy.types.Operator):
+    bl_idname = "turtle.set_roll"
+    bl_label = "Set turtle roll"
+    bl_description = "Rotate the turtle around Y. d = degrees"
+
+    d: FloatProperty()
+
+    def execute(self, context):
+        bpy.ops.turtle.setr(d=self.d)
         return {'FINISHED'}
 
 
@@ -556,6 +770,20 @@ class TURTLE_OT_set_roll(bpy.types.Operator):
             turtle.rotation_euler[1],
             radians(self.d),
             turtle.rotation_euler[2]]
+        return {'FINISHED'}
+
+
+class TURTLE_OT_quadratic_curve_alias(bpy.types.Operator):
+    bl_idname = "turtle.quadratic_curve"
+    bl_label = "Quadratic curve"
+    bl_description = "moves the turtle on a path described by a quadratic Bezier curve. \
+ Keyword Arguments: cp = coordinates of control point, ep = end point"
+
+    cp: FloatVectorProperty()
+    ep: FloatVectorProperty()
+
+    def execute(self, context):
+        bpy.ops.turtle.qc(cp=self.cp, ep=self.ep)
         return {'FINISHED'}
 
 
@@ -641,6 +869,21 @@ class TURTLE_OT_quadratic_curve(bpy.types.Operator):
             turtle.rotation_quaternion = rot_quat
             turtle.rotation_mode = 'XYZ'
 
+        return {'FINISHED'}
+
+
+class TURTLE_OT_cubic_curve_alias(bpy.types.Operator):
+    bl_idname = "turtle.cubic_curve"
+    bl_label = "Cubic curve"
+    bl_description = "moves the turtle on a path described by a cubic Bezier curve.\
+Keyword Arguments: cp1 / cp2 = coordinates of control points, ep = end point"
+
+    cp1: FloatVectorProperty()
+    cp2: FloatVectorProperty()
+    ep: FloatVectorProperty()
+
+    def execute(self, context):
+        bpy.ops.turtle.cc(cp1=self.cp1, cp2=self.cp2, ep=self.ep)
         return {'FINISHED'}
 
 
@@ -737,7 +980,7 @@ Keyword Arguments: cp1 / cp2 = coordinates of control points, ep = end point"
 
 
 class TURTLE_OT_begin_path(bpy.types.Operator):
-    bl_idname = "turtle.beginpath"
+    bl_idname = "turtle.begin_path"
     bl_label = "Begin path"
     bl_description = "Sets begin_path_vert to index of last vert that has been drawn"
 
@@ -756,7 +999,7 @@ class TURTLE_OT_begin_path(bpy.types.Operator):
 
 
 class TURTLE_OT_stroke_path(bpy.types.Operator):
-    bl_idname = "turtle.strokepath"
+    bl_idname = "turtle.stroke_path"
     bl_label = "Stroke path"
     bl_description = "draws an edge between selected vert and vert indexed in beginpath"
 
@@ -790,7 +1033,7 @@ class TURTLE_OT_stroke_path(bpy.types.Operator):
 
 
 class TURTLE_OT_fill_path(bpy.types.Operator):
-    bl_idname = "turtle.fillpath"
+    bl_idname = "turtle.fill_path"
     bl_label = "Fill path"
     bl_description = "draws an edge between selected vert and vert indexed in beginpath and then creates a face between all verts created since last beginpath statement"
 
@@ -828,6 +1071,16 @@ class TURTLE_OT_fill_path(bpy.types.Operator):
         return {'FINISHED'}
 
 
+class TURTLE_OT_select_path_alias(bpy.types.Operator):
+    bl_idname = "turtle.selp"
+    bl_label = "Select Path"
+    bl_description = "Selects all verts drawn since last Begin Path command"
+
+    def execute(self, context):
+        bpy.ops.selp()
+        return {'FINISHED'}
+
+
 class TURTLE_OT_select_path(bpy.types.Operator):
     bl_idname = "turtle.selp"
     bl_label = "Select Path"
@@ -852,6 +1105,16 @@ class TURTLE_OT_select_path(bpy.types.Operator):
         return {'FINISHED'}
 
 
+class TURTLE_OT_select_all_alias(bpy.types.Operator):
+    bl_idname = "turtle.select_all"
+    bl_label = "Select All"
+    bl_description = "Selects All Vertices"
+
+    def execute(self, context):
+        bpy.ops.turtle.sa()
+        return {'FINISHED'}
+
+
 class TURTLE_OT_select_all(bpy.types.Operator):
     bl_idname = "turtle.sa"
     bl_label = "Select All"
@@ -868,6 +1131,16 @@ class TURTLE_OT_select_all(bpy.types.Operator):
 
         bpy.ops.mesh.select_all(action='SELECT')
 
+        return {'FINISHED'}
+
+
+class TURTLE_OT_deselect_all_alias(bpy.types.Operator):
+    bl_idname = "turtle.deselect_all"
+    bl_label = "Select All"
+    bl_description = "Selects All Vertices"
+
+    def execute(self, context):
+        bpy.ops.turtle.da()
         return {'FINISHED'}
 
 
@@ -890,6 +1163,16 @@ class TURTLE_OT_deselect_all(bpy.types.Operator):
         return {'FINISHED'}
 
 
+class TURTLE_OT_new_vert_group_alias(bpy.types.Operator):
+    bl_idname = "turtle.new_vert_group"
+    bl_label = "New Vertex Group"
+    bl_description = "Creates new vertex group"
+
+    def execute(self, context):
+        bpy.ops.turtle.nvg()
+        return{'FINISHED'}
+
+
 class TURTLE_OT_new_vert_group(bpy.types.Operator):
     bl_idname = "turtle.nvg"
     bl_label = "New Vertex Group"
@@ -902,6 +1185,18 @@ class TURTLE_OT_new_vert_group(bpy.types.Operator):
     def execute(self, context):
         bpy.ops.object.vertex_group_add()
 
+        return {'FINISHED'}
+
+
+class TURTLE_OT_select_vert_group_alias(bpy.types.Operator):
+    bl_idname = "turtle.select_vert_group"
+    bl_label = "Select Vertex Group"
+    bl_description = "Selects all verts in vertex group. vg = Vertex group name"
+
+    vg: StringProperty()
+
+    def execute(self, context):
+        bpy.ops.turtle.svg(vg=self.vg)
         return {'FINISHED'}
 
 
@@ -926,6 +1221,18 @@ class TURTLE_OT_select_vert_group(bpy.types.Operator):
         return {'FINISHED'}
 
 
+class TURTLE_OT_deselect_vert_group_alias(bpy.types.Operator):
+    bl_idname = "turtle.deselect_vert_group"
+    bl_label = "Deselect Vertex Group"
+    bl_description = "Deselects all verts in vertex group. vg = Vertex group name"
+
+    vg: StringProperty()
+
+    def execute(self, context):
+        bpy.ops.turtle.dvg(vg=self.vg)
+        return {'FINISHED'}
+
+
 class TURTLE_OT_deselect_vert_group(bpy.types.Operator):
     bl_idname = "turtle.dvg"
     bl_label = "Deselect Vertex Group"
@@ -947,6 +1254,18 @@ class TURTLE_OT_deselect_vert_group(bpy.types.Operator):
         return {'FINISHED'}
 
 
+class TURTLE_OT_add_to_vert_group_alias(bpy.types.Operator):
+    bl_idname = "turtle.add_to_vert_group"
+    bl_label = "Add to Vertex Group"
+    bl_description = "Adds selected verts to vertex group. vg = Vertex group name"
+
+    vg: StringProperty()
+
+    def execute(self, context):
+        bpy.ops.turtle.avg(vg=self.vg)
+        return{'FINISHED'}
+
+
 class TURTLE_OT_add_to_vert_group(bpy.types.Operator):
     bl_idname = "turtle.avg"
     bl_label = "Add to Vertex Group"
@@ -965,6 +1284,18 @@ class TURTLE_OT_add_to_vert_group(bpy.types.Operator):
         bpy.ops.object.vertex_group_set_active()
         bpy.ops.object.vertex_group_assign()
 
+        return {'FINISHED'}
+
+
+class TURTLE_OT_remove_from_vert_group_alias(bpy.types.Operator):
+    bl_idname = "turtle.remove_from_vertex_group"
+    bl_label = "Remove from Vertex Group"
+    bl_description = "Removes selected verts from vertex group. vg = Vertex group name"
+
+    vg: StringProperty()
+
+    def execute(self, context):
+        bpy.ops.turtle.rvg(vg=self.vg)
         return {'FINISHED'}
 
 
