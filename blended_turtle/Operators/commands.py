@@ -53,6 +53,12 @@ class TURTLE_OT_clean(bpy.types.Operator):
         bpy.ops.mesh.delete()
         context.object['beginpath_active_vert'] = 0
 
+        if bpy.context.object['pendownp']:
+            bpy.ops.mesh.primitive_vert_add()
+        
+        bpy.ops.object.editmode_toggle()
+        bpy.ops.object.editmode_toggle()
+
         return {'FINISHED'}
 
 
@@ -121,12 +127,8 @@ class TURTLE_OT_forward(bpy.types.Operator):
             if len(bpy.context.object.data.vertices) == 0:
                 bpy.ops.mesh.primitive_vert_add()
 
-            # ensure that we only select the vert that the cursor is on
-            turtle_location = bpy.context.scene.cursor.location
-            select_by_loc(lbound=turtle_location, ubound=turtle_location)
-
             # extrude vert along cursor Y
-            bpy.ops.mesh.extrude_vertices_move(
+            bpy.ops.mesh.extrude_region_move(
                 TRANSFORM_OT_translate={
                     "value": (0, self.d, 0),
                     "orient_type": 'CURSOR'})
@@ -163,7 +165,7 @@ class TURTLE_OT_backward(bpy.types.Operator):
             if len(bpy.context.object.data.vertices) == 0:
                 bpy.ops.mesh.primitive_vert_add()
 
-            bpy.ops.mesh.extrude_vertices_move(
+            bpy.ops.mesh.extrude_region_move(
                 TRANSFORM_OT_translate={
                     "value": (0, -self.d, 0),
                     "orient_type": 'CURSOR'})
@@ -199,7 +201,7 @@ class TURTLE_OT_up(bpy.types.Operator):
             if len(bpy.context.object.data.vertices) == 0:
                 bpy.ops.mesh.primitive_vert_add()
 
-            bpy.ops.mesh.extrude_vertices_move(
+            bpy.ops.mesh.extrude_region_move(
                 TRANSFORM_OT_translate={
                     "value": (0, 0, self.d),
                     "orient_type": 'CURSOR'})
@@ -236,7 +238,7 @@ class TURTLE_OT_down(bpy.types.Operator):
             if len(bpy.context.object.data.vertices) == 0:
                 bpy.ops.mesh.primitive_vert_add()
 
-            bpy.ops.mesh.extrude_vertices_move(
+            bpy.ops.mesh.extrude_region_move(
                 TRANSFORM_OT_translate={
                     "value": (0, 0, -self.d),
                     "orient_type": 'CURSOR'})
@@ -272,7 +274,7 @@ class TURTLE_OT_left(bpy.types.Operator):
             if len(bpy.context.object.data.vertices) == 0:
                 bpy.ops.mesh.primitive_vert_add()
 
-            bpy.ops.mesh.extrude_vertices_move(
+            bpy.ops.mesh.extrude_region_move(
                 TRANSFORM_OT_translate={
                     "value": (-self.d, 0, 0),
                     "orient_type": 'CURSOR'})
@@ -307,7 +309,7 @@ class TURTLE_OT_right(bpy.types.Operator):
             if len(bpy.context.object.data.vertices) == 0:
                 bpy.ops.mesh.primitive_vert_add()
 
-            bpy.ops.mesh.extrude_vertices_move(
+            bpy.ops.mesh.extrude_region_move(
                 TRANSFORM_OT_translate={
                     "value": (self.d, 0, 0),
                     "orient_type": 'CURSOR'})
@@ -464,7 +466,7 @@ class TURTLE_OT_set_pos(bpy.types.Operator):
             if len(bpy.context.object.data.vertices) == 0:
                 bpy.ops.mesh.primitive_vert_add()
 
-            bpy.ops.mesh.extrude_vertices_move(
+            bpy.ops.mesh.extrude_region_move(
                 TRANSFORM_OT_translate={
                     "value": (self.v),
                     "orient_type": 'CURSOR'})
@@ -735,7 +737,7 @@ Keyword Arguments: cp1 / cp2 = coordinates of control points, ep = end point"
 
 
 class TURTLE_OT_begin_path(bpy.types.Operator):
-    bl_idname = "turtle.bp"
+    bl_idname = "turtle.beginpath"
     bl_label = "Begin path"
     bl_description = "Sets begin_path_vert to index of last vert that has been drawn"
 
@@ -754,7 +756,7 @@ class TURTLE_OT_begin_path(bpy.types.Operator):
 
 
 class TURTLE_OT_stroke_path(bpy.types.Operator):
-    bl_idname = "turtle.sp"
+    bl_idname = "turtle.strokepath"
     bl_label = "Stroke path"
     bl_description = "draws an edge between selected vert and vert indexed in beginpath"
 
@@ -788,7 +790,7 @@ class TURTLE_OT_stroke_path(bpy.types.Operator):
 
 
 class TURTLE_OT_fill_path(bpy.types.Operator):
-    bl_idname = "turtle.fp"
+    bl_idname = "turtle.fillpath"
     bl_label = "Fill path"
     bl_description = "draws an edge between selected vert and vert indexed in beginpath and then creates a face between all verts created since last beginpath statement"
 
@@ -888,18 +890,100 @@ class TURTLE_OT_deselect_all(bpy.types.Operator):
         return {'FINISHED'}
 
 
-class TURTLE_OT_extrude(bpy.types.Operator):
-    bl_idname = "turtle.ex"
-    bl_label = "Extrude Selected"
-    bl_description = "Extrudes Selected Vertices. d = extrude distance in blender units"
-
-    d: FloatProperty()
+class TURTLE_OT_new_vert_group(bpy.types.Operator):
+    bl_idname = "turtle.nvg"
+    bl_label = "New Vertex Group"
+    bl_description = "Creates new vertex group"
 
     @classmethod
     def poll(cls, context):
         return context.object.mode == 'EDIT'
 
     def execute(self, context):
-        bpy.ops.mesh.extrude_region_move(
-            TRANSFORM_OT_translate={"value": (0, 0, self.d),"orient_type": 'NORMAL'})
+        bpy.ops.object.vertex_group_add()
+
+        return {'FINISHED'}
+
+
+class TURTLE_OT_select_vert_group(bpy.types.Operator):
+    bl_idname = "turtle.svg"
+    bl_label = "Select Vertex Group"
+    bl_description = "Selects all verts in vertex group. vg = Vertex group name"
+
+    vg: StringProperty()
+
+    @classmethod
+    def poll(cls, context):
+        return context.object.mode == 'EDIT'
+
+    def execute(self, context):
+        bpy.ops.object.editmode_toggle()
+        bpy.ops.object.editmode_toggle()
+
+        bpy.ops.object.vertex_group_set_active()
+        bpy.ops.object.vertex_group_select()
+
+        return {'FINISHED'}
+
+
+class TURTLE_OT_deselect_vert_group(bpy.types.Operator):
+    bl_idname = "turtle.dvg"
+    bl_label = "Deselect Vertex Group"
+    bl_description = "Deselects all verts in vertex group. vg = Vertex group name"
+
+    vg: StringProperty()
+
+    @classmethod
+    def poll(cls, context):
+        return context.object.mode == 'EDIT'
+
+    def execute(self, context):
+        bpy.ops.object.editmode_toggle()
+        bpy.ops.object.editmode_toggle()
+
+        bpy.ops.object.vertex_group_set_active()
+        bpy.ops.object.vertex_group_deselect()
+
+        return {'FINISHED'}
+
+
+class TURTLE_OT_add_to_vert_group(bpy.types.Operator):
+    bl_idname = "turtle.avg"
+    bl_label = "Add to Vertex Group"
+    bl_description = "Adds selected verts to vertex group. vg = Vertex group name"
+
+    vg: StringProperty()
+
+    @classmethod
+    def poll(cls, context):
+        return context.object.mode == 'EDIT'
+
+    def execute(self, context):
+        bpy.ops.object.editmode_toggle()
+        bpy.ops.object.editmode_toggle()
+
+        bpy.ops.object.vertex_group_set_active()
+        bpy.ops.object.vertex_group_assign()
+
+        return {'FINISHED'}
+
+
+class TURTLE_OT_remove_from_vert_group(bpy.types.Operator):
+    bl_idname = "turtle.rvg"
+    bl_label = "Remove from Vertex Group"
+    bl_description = "Removes selected verts from vertex group. vg = Vertex group name"
+
+    vg: StringProperty()
+
+    @classmethod
+    def poll(cls, context):
+        return context.object.mode == 'EDIT'
+
+    def execute(self, context):
+        bpy.ops.object.editmode_toggle()
+        bpy.ops.object.editmode_toggle()
+
+        bpy.ops.object.vertex_group_set_active()
+        bpy.ops.object.vertex_group_remove_from()
+
         return {'FINISHED'}

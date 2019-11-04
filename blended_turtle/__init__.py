@@ -58,8 +58,12 @@ classes = (
     TURTLE_OT_fill_path,
     TURTLE_OT_select_all,
     TURTLE_OT_deselect_all,
-    TURTLE_OT_extrude,
-    TURTLE_OT_select_path)
+    TURTLE_OT_select_path,
+    TURTLE_OT_new_vert_group,
+    TURTLE_OT_select_vert_group,
+    TURTLE_OT_deselect_vert_group,
+    TURTLE_OT_add_to_vert_group,
+    TURTLE_OT_remove_from_vert_group)
 
 
 def register():
