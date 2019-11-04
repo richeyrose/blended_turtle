@@ -21,7 +21,7 @@ bl_info = {
     "author": "Richard Rose",
     "description": "Turtle graphics in blender",
     "blender": (2, 80, 0),
-    "version": (0, 0, 1),
+    "version": (0, 0, 2),
     "location": "View3d > Add > Mesh > New Object",
     "warning": "",
     "category": "Add Mesh"
