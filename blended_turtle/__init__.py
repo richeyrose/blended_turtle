@@ -13,7 +13,6 @@
 
 import os
 import bpy
-from . Operators.blended_turtle import OBJECT_OT_add_turtle
 from . Operators.commands import *
 from . Operators.aliases import *
 
@@ -29,7 +28,7 @@ bl_info = {
 }
 
 classes = (
-    OBJECT_OT_add_turtle,
+    TURTLE_OT_add_turtle,
     TURTLE_OT_clear_screen,
     TURTLE_OT_clean,
     TURTLE_OT_home,
@@ -98,12 +97,12 @@ classes = (
 def register():
     for cls in classes:
         bpy.utils.register_class(cls)
-    bpy.utils.register_manual_map(OBJECT_OT_add_turtle.add_object_manual_map)
-    bpy.types.VIEW3D_MT_mesh_add.append(OBJECT_OT_add_turtle.add_object_button)
+    bpy.utils.register_manual_map(TURTLE_OT_add_turtle.add_object_manual_map)
+    bpy.types.VIEW3D_MT_mesh_add.append(TURTLE_OT_add_turtle.add_object_button)
 
 
 def unregister():
     for cls in reversed(classes):
         bpy.utils.unregister_class(cls)
-    bpy.types.VIEW3D_MT_mesh_add.remove(OBJECT_OT_add_turtle.add_object_button)
-    bpy.utils.unregister_manual_map(OBJECT_OT_add_turtle.add_object_manual_map)
+    bpy.types.VIEW3D_MT_mesh_add.remove(TURTLE_OT_add_turtle.add_object_button)
+    bpy.utils.unregister_manual_map(TURTLE_OT_add_turtle.add_object_manual_map)
