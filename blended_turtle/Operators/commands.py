@@ -6,15 +6,7 @@ from mathutils import Vector
 from .. Utils.utils import select_by_loc
 
 
-class TURTLE_OT_clear_screen_alias(bpy.types.Operator):
-    bl_idname = "turtle.clear_screen"
-    bl_label = "Clear Turtle World"
-    bl_description = "Deletes mesh in turtle world and homes turtle."
 
-    def execute(self, context):
-        bpy.ops.turtle.cs()
-
-        return {'FINISHED'}
 
 
 class TURTLE_OT_clear_screen(bpy.types.Operator):
@@ -1072,7 +1064,7 @@ class TURTLE_OT_fill_path(bpy.types.Operator):
 
 
 class TURTLE_OT_select_path_alias(bpy.types.Operator):
-    bl_idname = "turtle.selp"
+    bl_idname = "turtle.select_path"
     bl_label = "Select Path"
     bl_description = "Selects all verts drawn since last Begin Path command"
 

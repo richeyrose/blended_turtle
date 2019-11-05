@@ -15,6 +15,7 @@ import os
 import bpy
 from . Operators.blended_turtle import OBJECT_OT_add_turtle
 from . Operators.commands import *
+from . Operators.aliases import *
 
 bl_info = {
     "name": "BlendedTurtle",
