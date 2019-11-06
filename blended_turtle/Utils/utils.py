@@ -61,6 +61,7 @@ def activate(obj_name):
     """activate object by name """
     bpy.context.view_layer.objects.active = bpy.data.objects[obj_name]
 
+
 def in_bbox(lbound, ubound, v, buffer=0.001):
     """Returns vertices that are in a bounding box
 
@@ -71,47 +72,48 @@ def in_bbox(lbound, ubound, v, buffer=0.001):
     v -- verts
     buffer - buffer around selection box within which to also select verts
     """
-    return lbound[0]-buffer <=v[0]<=ubound[0]+buffer and \
-        lbound[1]-buffer<=v[1]<=ubound[1]+buffer and \
-        lbound[2]-buffer<=v[2]<=ubound[2]+buffer
+    return lbound[0] - buffer <= v[0] <= ubound[0] + buffer and \
+        lbound[1] - buffer <= v[1] <= ubound[1] + buffer and \
+        lbound[2] - buffer <= v[2] <= ubound[2] + buffer
 
 
 def select_by_loc(
-        lbound=(0,0,0),
-        ubound=(0,0,0),
+        lbound=(0, 0, 0),
+        ubound=(0, 0, 0),
         select_mode='VERT',
         coords='GLOBAL',
-        buffer=0.001):
+        buffer=0.001,
+        additive=False):
     """select faces, edges or verts by location that are wholly
-    within a boundingcuboid
+    within a bounding cuboid
 
     Keyword arguments:
 
     lbound -- lower left bound of bounding box
-    rbound -- upper right bound of bounding box
+    ubound -- upper right bound of bounding box
     select_mode -- default 'VERT'
     coords -- default 'GLOBAL'
     buffer - buffer around selection default = 0.001
     """
 
-    #set selection mode
+    # set selection mode
     bpy.ops.mesh.select_mode(type=select_mode)
-    #grab the transformation matrix
+    # grab the transformation matrix
     world = bpy.context.object.matrix_world
 
-    #instantiate a bmesh object and ensure lookup table (bm.faces.ensure... works for all)
+    # instantiate a bmesh object and ensure lookup table (bm.faces.ensure... works for all)
     bm = bmesh.from_edit_mesh(bpy.context.object.data)
     bm.faces.ensure_lookup_table()
 
-    #initialise list of verts and parts to be selected
+    # initialise list of verts and parts to be selected
     verts = []
     to_select = []
 
-    #for VERT, EDGE or FACE
-        #grab list of global or local coords
-        #test if the piece is entirely within the rectangular
-        #prism defined by lbound and ubound
-        #select each piece that returned TRUE and deselect each piece that returned FALSE
+    # for VERT, EDGE or FACE
+    # grab list of global or local coords
+    # test if the piece is entirely within the rectangular
+    # prism defined by lbound and ubound
+    # select each piece that returned TRUE and deselect each piece that returned FALSE
 
     if select_mode == 'VERT':
         if coords == 'GLOBAL':
@@ -122,7 +124,10 @@ def select_by_loc(
         [to_select.append(in_bbox(lbound, ubound, v))for v in verts]
 
         for vert_obj, select in zip(bm.verts, to_select):
-            vert_obj.select = select
+            if additive:
+                vert_obj.select |= select
+            else:
+                vert_obj.select = select
 
     if select_mode == 'EDGE':
         if coords == 'GLOBAL':
@@ -133,7 +138,10 @@ def select_by_loc(
         [to_select.append(all(in_bbox(lbound, ubound, v)for v in e)) for e in verts]
 
         for edge_obj, select in zip(bm.edges, to_select):
-            edge_obj.select = select
+            if additive:
+                edge_obj.select |= select
+            else:
+                edge_obj.select = select
 
     if select_mode == 'FACE':
         if coords == 'GLOBAL':
@@ -144,4 +152,7 @@ def select_by_loc(
         [to_select.append(all(in_bbox(lbound, ubound, v, buffer) for v in f))for f in verts]
 
         for face_obj, select in zip(bm.faces, to_select):
-            face_obj.select = select
+            if additive:
+                face_obj.select |= select
+            else:
+                face_obj.select = select

@@ -55,9 +55,8 @@ class TURTLE_OT_backward_alias(bpy.types.Operator):
     d: FloatProperty()
 
     def execute(self, context):
-        bpy.op.turtle.backward(d=self.d)
+        bpy.ops.turtle.backward(d=self.d)
         return {'FINISHED'}
-
 
 class TURTLE_OT_down_alias(bpy.types.Operator):
     bl_idname = "turtle.dn"
@@ -103,7 +102,7 @@ class TURTLE_OT_left_turn_alias(bpy.types.Operator):
     d: FloatProperty()
 
     def execute(self, context):
-        bpy.ops.left_turn(d=self.d)
+        bpy.ops.turtle.left_turn(d=self.d)
         return {'FINISHED'}
 
 
