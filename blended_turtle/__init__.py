@@ -13,7 +13,12 @@
 
 import os
 import bpy
-from . Operators.commands import *
+from . Operators.basic_commands import *
+from . Operators.curve import *
+from . Operators .helpers import *
+from . Operators.path import *
+from . Operators.selection import *
+from . Operators.vertex_group import *
 from . Operators.aliases import *
 
 bl_info = {

@@ -58,6 +58,7 @@ class TURTLE_OT_backward_alias(bpy.types.Operator):
         bpy.ops.turtle.backward(d=self.d)
         return {'FINISHED'}
 
+
 class TURTLE_OT_down_alias(bpy.types.Operator):
     bl_idname = "turtle.dn"
     bl_label = "Move Down"
