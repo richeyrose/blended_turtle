@@ -78,7 +78,9 @@ class TURTLE_OT_select_at_cursor(bpy.types.Operator):
     bl_label = "Select at Cursor"
     bl_description = "Selects vertices at cursor"
 
+    select_mode: StringProperty(default='VERT')
     additive: BoolProperty(default=False)
+    buffer: FloatProperty(default=0.1)
 
     @classmethod
     def poll(cls, context):
@@ -90,7 +92,7 @@ class TURTLE_OT_select_at_cursor(bpy.types.Operator):
 
         turtle = bpy.context.scene.cursor
 
-        select_by_loc(lbound=turtle.location, ubound=turtle.location, additive=self.additive)
+        select_by_loc(lbound=turtle.location, ubound=turtle.location, select_mode=self.select_mode, buffer=self.buffer, additive=self.additive)
 
         return {'FINISHED'}
 

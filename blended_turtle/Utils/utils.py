@@ -121,7 +121,7 @@ def select_by_loc(
         elif coords == 'LOCAL':
             [verts.append(v.co.to_tuple())for v in bm.verts]
 
-        [to_select.append(in_bbox(lbound, ubound, v))for v in verts]
+        [to_select.append(in_bbox(lbound, ubound, v, buffer))for v in verts]
 
         for vert_obj, select in zip(bm.verts, to_select):
             if additive:
@@ -135,7 +135,7 @@ def select_by_loc(
         elif coords == 'LOCAL':
             [verts.append([v.co.to_tuple()for v in e.verts]) for e in bm.edges]
 
-        [to_select.append(all(in_bbox(lbound, ubound, v)for v in e)) for e in verts]
+        [to_select.append(all(in_bbox(lbound, ubound, v, buffer)for v in e)) for e in verts]
 
         for edge_obj, select in zip(bm.edges, to_select):
             if additive:
