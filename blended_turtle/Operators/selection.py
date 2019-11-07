@@ -79,7 +79,7 @@ class TURTLE_OT_select_at_cursor(bpy.types.Operator):
     bl_description = "Selects vertices at cursor"
 
     select_mode: StringProperty(default='VERT')
-    additive: BoolProperty(default=False)
+    additive: BoolProperty(default=True)
     buffer: FloatProperty(default=0.1)
 
     @classmethod

@@ -67,9 +67,6 @@ class TURTLE_OT_add_turtle(Operator, AddObjectHelper):
 
         bpy.ops.object.mode_set(mode='EDIT')
 
-        # add vert
-        bpy.ops.mesh.primitive_vert_add()
-
         # create two object properties
         # pen state
         new_world['pendownp'] = True
@@ -164,9 +161,6 @@ class TURTLE_OT_pen_down(bpy.types.Operator):
         return context.object.mode == 'EDIT'
 
     def execute(self, context):
-        if len(bpy.context.object.data.vertices) == 0:
-            bpy.ops.mesh.primitive_vert_add()
-
         bpy.context.object['pendownp'] = True
 
         bpy.ops.object.editmode_toggle()
@@ -548,22 +542,6 @@ class TURTLE_OT_set_pos(bpy.types.Operator):
         return context.object.mode == 'EDIT'
 
     def execute(self, context):
-
-        if bpy.context.object.get('pendownp') is None:
-            # pen state
-            bpy.context.object['pendownp'] = True
-
-        bpy.ops.object.editmode_toggle()
-        bpy.ops.object.editmode_toggle()
-
-        if bpy.context.object['pendownp']:
-            if len(bpy.context.object.data.vertices) == 0:
-                bpy.ops.mesh.primitive_vert_add()
-
-            bpy.ops.mesh.extrude_region_move(
-                TRANSFORM_OT_translate={
-                    "value": (self.v),
-                    "orient_type": 'CURSOR'})
 
         bpy.context.scene.cursor.location = (self.v)
         return {'FINISHED'}
