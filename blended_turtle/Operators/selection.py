@@ -40,11 +40,10 @@ class TURTLE_OT_select_all(bpy.types.Operator):
         return context.object.mode == 'EDIT'
 
     def execute(self, context):
-
-        bpy.ops.object.editmode_toggle()
-        bpy.ops.object.editmode_toggle()
-
         bpy.ops.mesh.select_all(action='SELECT')
+
+        bpy.ops.object.editmode_toggle()
+        bpy.ops.object.editmode_toggle()
 
         return {'FINISHED'}
 
@@ -65,11 +64,9 @@ class TURTLE_OT_select_by_location(bpy.types.Operator):
         return context.object.mode == 'EDIT'
 
     def execute(self, context):
-        bpy.ops.object.editmode_toggle()
-        bpy.ops.object.editmode_toggle()
-
         select_by_loc(lbound=self.lbound, ubound=self.ubound, select_mode=self.select_mode, buffer=self.buffer, additive=self.additive)
-
+        bpy.ops.object.editmode_toggle()
+        bpy.ops.object.editmode_toggle()
         return {'FINISHED'}
 
 
@@ -87,13 +84,11 @@ class TURTLE_OT_select_at_cursor(bpy.types.Operator):
         return context.object.mode == 'EDIT'
 
     def execute(self, context):
-        bpy.ops.object.editmode_toggle()
-        bpy.ops.object.editmode_toggle()
-
         turtle = bpy.context.scene.cursor
 
         select_by_loc(lbound=turtle.location, ubound=turtle.location, select_mode=self.select_mode, buffer=self.buffer, additive=self.additive)
-
+        bpy.ops.object.editmode_toggle()
+        bpy.ops.object.editmode_toggle()
         return {'FINISHED'}
 
 
@@ -107,9 +102,7 @@ class TURTLE_OT_deselect_all(bpy.types.Operator):
         return context.object.mode == 'EDIT'
 
     def execute(self, context):
-        bpy.ops.object.editmode_toggle()
-        bpy.ops.object.editmode_toggle()
-
         bpy.ops.mesh.select_all(action='DESELECT')
-
+        bpy.ops.object.editmode_toggle()
+        bpy.ops.object.editmode_toggle()
         return {'FINISHED'}
