@@ -6,7 +6,7 @@ turtle = bpy.context.scene.cursor
 t = bpy.ops.turtle
 
 outer_w = 6                 # outer ring width
-slot_w = 4.7                # slot width
+slot_w = 4.6                # slot width
 slot_h = 6.1                # slot height
 support_w = 3               # slot support width
 support_h = 1.39            # slot support height
@@ -35,6 +35,7 @@ def make_floor(dimensions=(25.4, 25.4, 7)):
 def draw_quarter_floor(dimensions, start_loc):
     x = dimensions[0]
     y = dimensions[1]
+    z = dimensions[2]
     
     # draw loop 1
     t.ri(d=x / 2)
@@ -74,51 +75,46 @@ def draw_quarter_floor(dimensions, start_loc):
     
     # create bevel for corner supports
     bpy.ops.mesh.bevel(offset_type='WIDTH', offset=3, offset_pct=0, vertex_only=True)
-    
-    # move cursor
+
+    #bridge bevels
     leg = support_w / sqrt(2)
-    t.pu()
-    t.bk(d=y / 2 - outer_w)
-    t.lf(d=leg)
-
-    # select bevels
-    t.select_by_location(
-                lbound=turtle.location,
-                ubound=(x / 2 - outer_w,
-                        turtle.location[1] + slot_w + leg,
-                        turtle.location[2]))
-
-    # delete bevel edges
-    bpy.ops.mesh.delete(type='EDGE')
-    
-
-    # create bridges
-    t.fd(d=slot_w)
-    t.select_at_cursor()
-    t.set_position(v=(start_loc))
-    t.fd(d=outer_w)
-    t.ri(d=x / 2 - outer_w - leg)
-    t.select_at_cursor()
-   
-    bpy.ops.mesh.edge_face_add()
-    t.deselect_all()
-    
-    t.set_position(v=(start_loc))
-    t.fd(d=outer_w + leg)
-    t.ri(d=x / 2 - outer_w)
-    t.select_at_cursor()
-    t.fd(d=slot_w)
-    t.lf(d=slot_w)
-    t.select_at_cursor()
-        
-    bpy.ops.mesh.edge_face_add()
-    t.deselect_all()
-    
     t.pu()
     t.home()
     t.set_position(v=start_loc)
-    t.pd()
+    t.fd(d=outer_w + slot_w)
+    t.ri(d=x / 2 - outer_w - slot_w - leg)
+
+    t.select_at_cursor()
+    t.bk(d=slot_w)
+    t.ri(d=slot_w)
+    t.select_at_cursor()
     
+
+    t.ri(d=leg)
+    t.fd(d=leg)
+    t.select_at_cursor()
+
+    t.fd(d=slot_w)
+    t.lf(d=slot_w)
+    t.select_at_cursor()
+    bpy.ops.mesh.edge_face_add()
+    t.deselect_all()
+    t.select_at_cursor()
+    t.lf(d=leg)   
+    t.bk(d=leg)
+    t.select_at_cursor()
+    bpy.ops.mesh.delete(type='EDGE')
+
+    t.bk(d=slot_w)
+    t.ri(d=slot_w)
+    t.select_at_cursor()
+    t.fd(d=leg)
+    t.ri(d=leg)
+    t.select_at_cursor()
+    bpy.ops.mesh.delete(type='EDGE')
+    
+    
+
     # check if either side is greater than 101.6mm (6").
     # if yes we add some extra support between outer and inner ring
 
@@ -156,23 +152,24 @@ def draw_quarter_floor(dimensions, start_loc):
     t.rt(d=180)
     if y_supports > 0:
         clean_extra_supports(y_supports, 'y', -support_w, -slot_w)
-    
-    # extrude inner sides 1
+
+    # extrude inner sides up 1
     t.pd()
     t.select_all()
     t.up(d=support_h)
-    t.up(d=slot_h-support_h)
+    t.select_all()
+    t.merge()
     t.deselect_all()
     t.home()
     t.set_position(v=start_loc)
-    
-
+  
+    #join outer edges
     t.pd()    
     t.select_at_cursor()
     t.fd(d=outer_w)
     t.deselect_all()
     t.pu()
-    t.fd(d=slot_w)
+    t.fd(d=slot_w)  
     t.pd()
     t.select_at_cursor()
     t.fd(d=y / 2 - slot_w - outer_w)
@@ -185,7 +182,7 @@ def draw_quarter_floor(dimensions, start_loc):
     t.ri(d=outer_w)
     t.select_all()
     t.merge()
-    
+  
     # fill base
     t.pu()
     t.deselect_all()
@@ -199,6 +196,141 @@ def draw_quarter_floor(dimensions, start_loc):
     bpy.ops.mesh.fill()
     t.select_all()
     bpy.ops.mesh.normals_make_consistent()
+
+
+    # draw extra support roofs
+    t.pu()
+    t.deselect_all()
+    t.home()
+    t.set_position(v=start_loc)
+    t.fd(d=outer_w)
+    t.rt(d=90) 
+    t.up(d=support_h)
+    
+    if x_supports > 0:
+        fill_extra_supports(x_supports, 'x', support_w, slot_w)
+        
+    t.home()
+    t.ri(d=x / 2 - outer_w)
+    t.rt(d=180)
+    t.up(d=support_h)
+    
+    if y_supports > 0:
+        fill_extra_supports(y_supports, 'y', -support_w, -slot_w)
+
+    # draw corner support roofs
+    t.deselect_all()
+    t.pu
+    t.home()
+    t.set_position(v=start_loc)
+    t.fd(d=outer_w)
+    t.up(d=support_h)
+    t.ri(d=x / 2 - outer_w - leg)
+    t.select_at_cursor()
+    t.ri(d=leg)
+    t.fd(d=leg)
+    t.select_at_cursor()
+
+    t.fd(d=slot_w)
+    t.lf(d=slot_w)
+    t.select_at_cursor()
+    t.lf(d=leg)
+    t.bk(d=leg)
+    t.select_at_cursor()
+    bpy.ops.mesh.edge_face_add()
+
+   
+    #bridge_slot
+    t.deselect_all()
+    t.home()
+    t.set_position(v=start_loc)
+    t.fd(d=outer_w)
+    t.up(d=support_h)
+    t.select_at_cursor()
+    t.pd()
+    t.fd(d=slot_w)
+    t.deselect_all()
+    t.pu()
+    t.ri(d=x / 2 - outer_w - slot_w)
+    t.fd(d=y / 2 - outer_w - slot_w)
+    t.select_at_cursor()
+    t.pd()
+    t.ri(d=slot_w)
+    t.pu()
+  
+    #draw duplicate top of supports and slot
+    t.deselect_all()
+    t.home()
+    t.set_position(v=start_loc)
+    t.fd(d=outer_w)
+    t.up(d=support_h)
+    t.select_by_location(
+                lbound=turtle.location,
+                ubound=(turtle.location[0] + x / 2 - outer_w,
+                        turtle.location[1] + y / 2 - outer_w,
+                        turtle.location[2]))
+    
+    bpy.ops.mesh.duplicate_move(
+        TRANSFORM_OT_translate={
+                    "value": (0, 0, slot_h - support_h),
+                    "orient_type": 'CURSOR'})
+    t.merge()
+    bpy.ops.mesh.edge_face_add()
+    
+
+    
+    # extrude down and clean
+    t.pd()
+    t.dn(d=slot_h - support_h)
+    bpy.ops.mesh.delete(type='FACE')
+
+    # clean non-manifolds at end
+    t.pu()
+    t.deselect_all()
+    t.home()
+    t.set_position(v=start_loc)
+    t.fd(d=outer_w)
+    t.up(d=support_h)
+    t.select_at_cursor()
+    t.fd(d=slot_w)
+    t.select_at_cursor()
+    bpy.ops.mesh.delete(type='EDGE')
+ 
+    t.ri(d=x / 2 - outer_w)
+    t.fd(d=y / 2 - outer_w - slot_w)
+    t.select_at_cursor()
+    t.lf(d=slot_w)
+    t.select_at_cursor()
+    bpy.ops.mesh.delete(type='EDGE')
+      
+    # draw outer wall
+    t.pu()
+    t.home()
+    t.set_position(v=start_loc)
+    t.up(d=support_h)
+    t.select_at_cursor()
+    t.ri(d=x / 2)
+    t.select_at_cursor()
+    t.fd(d=y / 2)
+    t.select_at_cursor()
+    t.pd()
+    t.up(d=z - support_h)
+
+    # draw top
+    t.deselect_all()
+    t.home()
+    t.up(d=z)   
+    t.add_vert()
+    t.begin_path()
+    t.ri(d=x / 2)
+    t.select_path()
+    t.bk(d=y / 2)
+    
+    #clean up
+    t.select_all()
+    t.merge()
+    bpy.ops.mesh.normals_make_consistent()
+
 
 def add_extra_supports(num_supports, axis, support_w, slot_w):
     
@@ -250,9 +382,32 @@ def clean_extra_supports(num_supports, axis, support_w, slot_w):
         t.fd(d=support_w)
     
 
+def fill_extra_supports(num_supports, axis, support_w, slot_w):
+    for i in range(num_supports):
+        if i == 0:
+            t.fd(d=extra_sup_dist / 2)
+        else:
+            t.fd(d=extra_sup_dist + (extra_sup_dist / 2))
+        
+        t.select_at_cursor()
+        t.fd(d=support_w)
+        t.select_at_cursor()
+        t.lf(d=slot_w)
+        t.select_at_cursor()
+        t.bk(d=support_w)
+        t.select_at_cursor()
+        t.ri(d=slot_w)
+        t.fd(d=support_w)
+        bpy.ops.mesh.edge_face_add()
+        t.deselect_all()
+
+
+
+bpy.context.scene.cursor.location = (14.3, 12.6, 0)
+make_floor(dimensions=(50, 50, 7))
+
+
 '''
-make_floor(dimensions=(25.4, 25.4, 7))
-bpy.ops.object.mode_set(mode='OBJECT', toggle=False)
 bpy.context.scene.cursor.location = (50, 0, 0)
 make_floor(dimensions=(25.4, 50.8, 7))
 bpy.ops.object.mode_set(mode='OBJECT', toggle=False)
@@ -260,6 +415,6 @@ bpy.context.scene.cursor.location = (100, 0, 0)
 make_floor(dimensions=(101.6, 50.8, 7))
 bpy.ops.object.mode_set(mode='OBJECT', toggle=False)
 bpy.context.scene.cursor.location = (0, -50, 0)
+make_floor(dimensions=(25.4, 50.8, 7))
+make_floor(dimensions=(25.4, 25.4, 7))
 '''
-bpy.context.scene.cursor.location = (0, 0, 0)
-make_floor(dimensions=(205, 205, 7))
