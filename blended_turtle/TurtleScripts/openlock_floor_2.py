@@ -19,6 +19,9 @@ def make_floor(dimensions=(25.4, 25.4, 7)):
     z = dimensions[2]
 
     t.add_turtle()
+    
+    bpy.ops.object.modifier_add(type='MIRROR')
+    bpy.context.object.modifiers["Mirror"].use_axis[1] = True
 
     # We want our tile to have its origin at the center
     # so we make sure the pen is up
@@ -135,8 +138,7 @@ def draw_quarter_floor(dimensions, start_loc):
     t.rt(d=180)
     
     if y_supports > 0:
-        add_extra_supports(y_supports, 'y', -support_w, -slot_w)
-
+        add_extra_supports(y_supports, 'y', support_w, slot_w)
 
     t.pu()
     t.home()
@@ -150,8 +152,9 @@ def draw_quarter_floor(dimensions, start_loc):
     t.home()
     t.ri(d=x / 2 - outer_w)
     t.rt(d=180)
+
     if y_supports > 0:
-        clean_extra_supports(y_supports, 'y', -support_w, -slot_w)
+        clean_extra_supports(y_supports, 'y', support_w, slot_w)
 
     # extrude inner sides up 1
     t.pd()
@@ -162,7 +165,7 @@ def draw_quarter_floor(dimensions, start_loc):
     t.deselect_all()
     t.home()
     t.set_position(v=start_loc)
-  
+
     #join outer edges
     t.pd()    
     t.select_at_cursor()
@@ -182,7 +185,8 @@ def draw_quarter_floor(dimensions, start_loc):
     t.ri(d=outer_w)
     t.select_all()
     t.merge()
-  
+    
+ 
     # fill base
     t.pu()
     t.deselect_all()
@@ -193,6 +197,7 @@ def draw_quarter_floor(dimensions, start_loc):
             ubound=(turtle.location[0] + x / 2,
                     turtle.location[1] + y / 2,
                     turtle.location[2]))
+               
     bpy.ops.mesh.fill()
     t.select_all()
     bpy.ops.mesh.normals_make_consistent()
@@ -206,7 +211,7 @@ def draw_quarter_floor(dimensions, start_loc):
     t.fd(d=outer_w)
     t.rt(d=90) 
     t.up(d=support_h)
-    
+
     if x_supports > 0:
         fill_extra_supports(x_supports, 'x', support_w, slot_w)
         
@@ -216,7 +221,7 @@ def draw_quarter_floor(dimensions, start_loc):
     t.up(d=support_h)
     
     if y_supports > 0:
-        fill_extra_supports(y_supports, 'y', -support_w, -slot_w)
+        fill_extra_supports(y_supports, 'y', support_w, slot_w)
 
     # draw corner support roofs
     t.deselect_all()
@@ -257,7 +262,7 @@ def draw_quarter_floor(dimensions, start_loc):
     t.pd()
     t.ri(d=slot_w)
     t.pu()
-  
+
     #draw duplicate top of supports and slot
     t.deselect_all()
     t.home()
@@ -278,7 +283,7 @@ def draw_quarter_floor(dimensions, start_loc):
     bpy.ops.mesh.edge_face_add()
     
 
-    
+
     # extrude down and clean
     t.pd()
     t.dn(d=slot_h - support_h)
@@ -295,14 +300,15 @@ def draw_quarter_floor(dimensions, start_loc):
     t.fd(d=slot_w)
     t.select_at_cursor()
     bpy.ops.mesh.delete(type='EDGE')
- 
-    t.ri(d=x / 2 - outer_w)
+
+    t.ri(d= x / 2 - outer_w)
     t.fd(d=y / 2 - outer_w - slot_w)
     t.select_at_cursor()
     t.lf(d=slot_w)
     t.select_at_cursor()
+
     bpy.ops.mesh.delete(type='EDGE')
-      
+
     # draw outer wall
     t.pu()
     t.home()
@@ -317,19 +323,23 @@ def draw_quarter_floor(dimensions, start_loc):
     t.up(d=z - support_h)
 
     # draw top
+    t.pu()
     t.deselect_all()
     t.home()
-    t.up(d=z)   
+    t.up(d=z)
+    t.pd()  
     t.add_vert()
     t.begin_path()
     t.ri(d=x / 2)
     t.select_path()
     t.bk(d=y / 2)
-    
+
     #clean up
     t.select_all()
     t.merge()
     bpy.ops.mesh.normals_make_consistent()
+    t.deselect_all()
+    t.home()
 
 
 def add_extra_supports(num_supports, axis, support_w, slot_w):
@@ -337,50 +347,83 @@ def add_extra_supports(num_supports, axis, support_w, slot_w):
     for i in range(num_supports):
         if i == 0:
             t.fd(d=extra_sup_dist / 2)
-        else:
+        elif i == 1:
             t.fd(d=extra_sup_dist + (extra_sup_dist / 2))
+        else:
+            t.fd(d=extra_sup_dist)
+
+
+        # need a slight buffer here to handle some cases.
+        # Yay floating point arithmatic!
+        if (axis == 'x'):
+            # draw support
+            t.add_vert()
+            t.begin_path()
+            t.fd(d=support_w)
+            t.add_vert()
+            t.select_path()
+            t.pd()
+            t.lf(d=slot_w + 0.01)
+            t.pu()
+            t.ri(d=slot_w + 0.01)
+        else:
+            t.lf(d=0.01)
+            t.add_vert()
+            t.pd()
+            t.ri(d=slot_w + 0.02)
+            t.pu()
+            t.fd(d=support_w)
+            t.pd()
+            t.add_vert()
+            t.lf(d=slot_w + 0.02)
         
-        # draw support
-        t.add_vert()
-        t.begin_path()
-        t.fd(d=support_w)
-        t.add_vert()
-        t.select_path()
-        t.pd()
-        t.lf(d=slot_w)
-        t.ri(d=slot_w)
-        t.pu()
     
     t.select_all()
+
     bpy.ops.tinycad.intersectall()
+    bpy.ops.tinycad.vertintersect()
     bpy.context.tool_settings.mesh_select_mode = (True, False, False)
     t.select_all() 
-    t.merge()
+    bpy.ops.mesh.remove_doubles(threshold=0.01001)
     t.deselect_all()
 
 def clean_extra_supports(num_supports, axis, support_w, slot_w):
+
     for i in range(num_supports):
         if i == 0:
             t.fd(d=extra_sup_dist / 2)
         else:
             t.fd(d=extra_sup_dist + (extra_sup_dist / 2))
-    
-        t.select_at_cursor()
-        t.fd(d=support_w)
-        t.select_at_cursor()
-        
-        bpy.ops.mesh.delete(type='EDGE')
-        
-        t.lf(d=slot_w)
-        t.select_at_cursor()
-        t.bk(d=support_w)
-        t.select_at_cursor()
-        
-        bpy.ops.mesh.delete(type='EDGE')
-        
-        t.ri(d=slot_w)
-        t.fd(d=support_w)
-    
+            
+        if(axis == 'x'):
+            t.select_at_cursor()
+            t.fd(d=support_w)
+            t.select_at_cursor()        
+            bpy.ops.mesh.delete(type='EDGE')
+            t.deselect_all()
+            
+            t.lf(d=slot_w)
+            t.select_at_cursor()
+            t.bk(d=support_w)
+            t.select_at_cursor()
+            
+            bpy.ops.mesh.delete(type='EDGE')
+            
+            t.ri(d=slot_w)
+            t.fd(d=support_w)
+        else:
+            t.select_at_cursor()
+            t.fd(d=support_w)
+            t.select_at_cursor()        
+            bpy.ops.mesh.delete(type='EDGE')
+            t.deselect_all()
+            t.ri(d=slot_w)
+            t.select_at_cursor()
+            t.bk(d=support_w)
+            t.select_at_cursor()
+            bpy.ops.mesh.delete(type='EDGE')
+            t.lf(d=slot_w)
+            t.fd(d=support_w)
 
 def fill_extra_supports(num_supports, axis, support_w, slot_w):
     for i in range(num_supports):
@@ -389,32 +432,100 @@ def fill_extra_supports(num_supports, axis, support_w, slot_w):
         else:
             t.fd(d=extra_sup_dist + (extra_sup_dist / 2))
         
-        t.select_at_cursor()
-        t.fd(d=support_w)
-        t.select_at_cursor()
-        t.lf(d=slot_w)
-        t.select_at_cursor()
-        t.bk(d=support_w)
-        t.select_at_cursor()
-        t.ri(d=slot_w)
-        t.fd(d=support_w)
-        bpy.ops.mesh.edge_face_add()
-        t.deselect_all()
+        if(axis == 'x'):
+            t.select_at_cursor()
+            t.fd(d=support_w)
+            t.select_at_cursor()
+            t.lf(d=slot_w)
+            t.select_at_cursor()
+            t.bk(d=support_w)
+            t.select_at_cursor()
+            t.ri(d=slot_w)
+            t.fd(d=support_w)
+            bpy.ops.mesh.edge_face_add()
+            t.deselect_all()
+            
+        else:
+            t.select_at_cursor()
+            t.fd(d=support_w)
+            t.select_at_cursor()        
+            t.ri(d=slot_w)
+            t.select_at_cursor()
+            t.bk(d=support_w)
+            t.select_at_cursor()
+            t.lf(d=slot_w)
+            t.fd(d=support_w)
+            bpy.ops.mesh.edge_face_add()
+            t.deselect_all()
 
+bpy.context.scene.cursor.location = (0.5, 0.8, 2)
 
-
-bpy.context.scene.cursor.location = (14.3, 12.6, 0)
-make_floor(dimensions=(50, 50, 7))
-
+make_floor(dimensions=(101.6, 101.6, 7))
+t.lf(d=100)
+bpy.ops.object.mode_set(mode='OBJECT', toggle=False)
 
 '''
-bpy.context.scene.cursor.location = (50, 0, 0)
-make_floor(dimensions=(25.4, 50.8, 7))
-bpy.ops.object.mode_set(mode='OBJECT', toggle=False)
-bpy.context.scene.cursor.location = (100, 0, 0)
-make_floor(dimensions=(101.6, 50.8, 7))
-bpy.ops.object.mode_set(mode='OBJECT', toggle=False)
-bpy.context.scene.cursor.location = (0, -50, 0)
-make_floor(dimensions=(25.4, 50.8, 7))
+bpy.context.scene.cursor.location = (0.5, 0.8, 2)
+
 make_floor(dimensions=(25.4, 25.4, 7))
+t.lf(d=100)
+bpy.ops.object.mode_set(mode='OBJECT', toggle=False)
+
+make_floor(dimensions=(25.4, 50.8, 7))
+t.lf(d=100)
+bpy.ops.object.mode_set(mode='OBJECT', toggle=False)
+
+make_floor(dimensions=(50.8, 25.4, 7))
+t.lf(d=100)
+bpy.ops.object.mode_set(mode='OBJECT', toggle=False)
+
+make_floor(dimensions=(101.6, 25.4, 7))
+t.lf(d=125)
+bpy.ops.object.mode_set(mode='OBJECT', toggle=False)
+
+make_floor(dimensions=(25.4, 101.6, 7))
+t.lf(d=125)
+bpy.ops.object.mode_set(mode='OBJECT', toggle=False)
+
+make_floor(dimensions=(50.8, 101.6, 7))
+t.bk(d=125)
+bpy.ops.object.mode_set(mode='OBJECT', toggle=False)
+
+make_floor(dimensions=(101.6, 50.8, 7))
+t.ri(d=125)
+bpy.ops.object.mode_set(mode='OBJECT', toggle=False)
+
+make_floor(dimensions=(101.6, 101.6, 7))
+t.ri(d=125)
+bpy.ops.object.mode_set(mode='OBJECT', toggle=False)
+
+make_floor(dimensions=(205, 25.4, 7))
+t.ri(d=225)
+bpy.ops.object.mode_set(mode='OBJECT', toggle=False)
+
+make_floor(dimensions=(25.4, 205, 7))
+t.ri(d=225)
+bpy.ops.object.mode_set(mode='OBJECT', toggle=False)
+
+make_floor(dimensions=(50.8, 205, 7))
+t.bk(d=225)
+bpy.ops.object.mode_set(mode='OBJECT', toggle=False)
+
+make_floor(dimensions=(205, 50.8, 7))
+t.lf(d=225)
+bpy.ops.object.mode_set(mode='OBJECT', toggle=False)
+
+make_floor(dimensions=(205, 101.6, 7))
+t.lf(d=225)
+bpy.ops.object.mode_set(mode='OBJECT', toggle=False)
+
+make_floor(dimensions=(101.6, 205, 7))
+t.lf(d=225)
+bpy.ops.object.mode_set(mode='OBJECT', toggle=False)
+
+make_floor(dimensions=(205, 205, 7))
+t.lf(d=225)
+bpy.ops.object.mode_set(mode='OBJECT', toggle=False)
+
 '''
+
