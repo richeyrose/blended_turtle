@@ -191,9 +191,10 @@ class TURTLE_OT_pen_up(bpy.types.Operator):
 class TURTLE_OT_forward(bpy.types.Operator):
     bl_idname = "turtle.forward"
     bl_label = "Move Forward"
-    bl_description = "Moves the turtle forward. d = distance in blender units"
+    bl_description = "Moves the turtle forward. d = distance in blender units, m = move mode"
 
     d: FloatProperty()
+    m: BoolProperty(default=False)
 
     @classmethod
     def poll(cls, context):
@@ -216,10 +217,16 @@ class TURTLE_OT_forward(bpy.types.Operator):
                 bpy.ops.mesh.primitive_vert_add()
 
             # extrude vert along cursor Y
-            bpy.ops.mesh.extrude_region_move(
-                TRANSFORM_OT_translate={
-                    "value": (0, self.d, 0),
-                    "orient_type": 'CURSOR'})
+            if not self.m:
+                bpy.ops.mesh.extrude_region_move(
+                    TRANSFORM_OT_translate={
+                        "value": (0, self.d, 0),
+                        "orient_type": 'CURSOR'})
+            # or move vert along cursor Y if in move mode
+            else:
+                bpy.ops.transform.translate(
+                    value=(0, self.d, 0),
+                    orient_type='CURSOR')
 
         # move turtle forward
         bpy.ops.transform.translate(
@@ -236,7 +243,7 @@ class TURTLE_OT_backward(bpy.types.Operator):
     bl_description = "Moves the turtle Backward. d = distance in blender units"
 
     d: FloatProperty()
-
+    m: BoolProperty(default=False)
     @classmethod
     def poll(cls, context):
         return context.object.mode == 'EDIT'
@@ -252,11 +259,15 @@ class TURTLE_OT_backward(bpy.types.Operator):
         if context.object['pendownp']:
             if len(bpy.context.object.data.vertices) == 0:
                 bpy.ops.mesh.primitive_vert_add()
-
-            bpy.ops.mesh.extrude_region_move(
-                TRANSFORM_OT_translate={
-                    "value": (0, -self.d, 0),
-                    "orient_type": 'CURSOR'})
+            if not self.m:
+                bpy.ops.mesh.extrude_region_move(
+                    TRANSFORM_OT_translate={
+                        "value": (0, -self.d, 0),
+                        "orient_type": 'CURSOR'})
+            else:
+                bpy.ops.transform.translate(
+                    value=(0, -self.d, 0),
+                    orient_type='CURSOR')
 
         bpy.ops.transform.translate(
             value=(0, -self.d, 0),
@@ -272,7 +283,7 @@ class TURTLE_OT_up(bpy.types.Operator):
     bl_description = "Moves the turtle Up. d = distance in blender units"
 
     d: FloatProperty()
-
+    m: BoolProperty(default=False)
     @classmethod
     def poll(cls, context):
         return context.object.mode == 'EDIT'
@@ -288,11 +299,15 @@ class TURTLE_OT_up(bpy.types.Operator):
         if context.object['pendownp']:
             if len(bpy.context.object.data.vertices) == 0:
                 bpy.ops.mesh.primitive_vert_add()
-
-            bpy.ops.mesh.extrude_region_move(
-                TRANSFORM_OT_translate={
-                    "value": (0, 0, self.d),
-                    "orient_type": 'CURSOR'})
+            if not self.m:
+                bpy.ops.mesh.extrude_region_move(
+                    TRANSFORM_OT_translate={
+                        "value": (0, 0, self.d),
+                        "orient_type": 'CURSOR'})
+            else:
+                bpy.ops.transform.translate(
+                    value=(0, 0, self.d),
+                    orient_type='CURSOR')
 
         bpy.ops.transform.translate(
             value=(0, 0, self.d),
@@ -308,7 +323,7 @@ class TURTLE_OT_down(bpy.types.Operator):
     bl_description = "Moves the turtle down. d = distance in blender units"
 
     d: FloatProperty()
-
+    m: BoolProperty(default=False)
     @classmethod
     def poll(cls, context):
         return context.object.mode == 'EDIT'
@@ -325,11 +340,15 @@ class TURTLE_OT_down(bpy.types.Operator):
 
             if len(bpy.context.object.data.vertices) == 0:
                 bpy.ops.mesh.primitive_vert_add()
-
-            bpy.ops.mesh.extrude_region_move(
-                TRANSFORM_OT_translate={
-                    "value": (0, 0, -self.d),
-                    "orient_type": 'CURSOR'})
+            if not self.m:
+                bpy.ops.mesh.extrude_region_move(
+                    TRANSFORM_OT_translate={
+                        "value": (0, 0, -self.d),
+                        "orient_type": 'CURSOR'})
+            else:
+                bpy.ops.transform.translate(
+                    value=(0, 0, -self.d),
+                    orient_type='CURSOR')
 
         bpy.ops.transform.translate(
             value=(0, 0, -self.d),
@@ -345,7 +364,7 @@ class TURTLE_OT_left(bpy.types.Operator):
     bl_description = "Moves the turtle left. d = distance in blender units"
 
     d: FloatProperty()
-
+    m: BoolProperty(default=False)
     @classmethod
     def poll(cls, context):
         return context.object.mode == 'EDIT'
@@ -361,11 +380,15 @@ class TURTLE_OT_left(bpy.types.Operator):
         if context.object['pendownp']:
             if len(bpy.context.object.data.vertices) == 0:
                 bpy.ops.mesh.primitive_vert_add()
-
-            bpy.ops.mesh.extrude_region_move(
-                TRANSFORM_OT_translate={
-                    "value": (-self.d, 0, 0),
-                    "orient_type": 'CURSOR'})
+            if not self.m:
+                bpy.ops.mesh.extrude_region_move(
+                    TRANSFORM_OT_translate={
+                        "value": (-self.d, 0, 0),
+                        "orient_type": 'CURSOR'})
+            else:
+                bpy.ops.transform.translate(
+                    value=(-self.d, 0, 0),
+                    orient_type='CURSOR')
 
         bpy.ops.transform.translate(
             value=(-self.d, 0, 0),
@@ -380,7 +403,7 @@ class TURTLE_OT_right(bpy.types.Operator):
     bl_description = "Moves the turtle right. d = distance in blender units"
 
     d: FloatProperty()
-
+    m: BoolProperty(default=False)
     @classmethod
     def poll(cls, context):
         return context.object.mode == 'EDIT'
@@ -396,11 +419,15 @@ class TURTLE_OT_right(bpy.types.Operator):
         if context.object['pendownp']:
             if len(bpy.context.object.data.vertices) == 0:
                 bpy.ops.mesh.primitive_vert_add()
-
-            bpy.ops.mesh.extrude_region_move(
-                TRANSFORM_OT_translate={
-                    "value": (self.d, 0, 0),
-                    "orient_type": 'CURSOR'})
+            if not self.m:
+                bpy.ops.mesh.extrude_region_move(
+                    TRANSFORM_OT_translate={
+                        "value": (self.d, 0, 0),
+                        "orient_type": 'CURSOR'})
+            else:
+                bpy.ops.transform.translate(
+                    value=(self.d, 0, 0),
+                    orient_type='CURSOR')
 
         bpy.ops.transform.translate(
             value=(self.d, 0, 0),

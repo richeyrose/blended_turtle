@@ -1,5 +1,5 @@
 import bpy
-from bpy.props import StringProperty, FloatProperty, FloatVectorProperty, IntProperty
+from bpy.props import StringProperty, FloatProperty, FloatVectorProperty, IntProperty, BoolProperty
 
 
 class TURTLE_OT_clear_screen_alias(bpy.types.Operator):
@@ -40,9 +40,9 @@ class TURTLE_OT_forward_alias(bpy.types.Operator):
     bl_description = "Moves the turtle forward. d = distance in blender units"
 
     d: FloatProperty()
-
+    m: BoolProperty()
     def execute(self, context):
-        bpy.ops.turtle.forward(d=self.d)
+        bpy.ops.turtle.forward(d=self.d, m=self.m)
 
         return {'FINISHED'}
 
@@ -53,9 +53,10 @@ class TURTLE_OT_backward_alias(bpy.types.Operator):
     bl_description = "Moves the turtle Backward. d = distance in blender units"
 
     d: FloatProperty()
+    m: BoolProperty()
 
     def execute(self, context):
-        bpy.ops.turtle.backward(d=self.d)
+        bpy.ops.turtle.backward(d=self.d, m=self.m)
         return {'FINISHED'}
 
 
@@ -65,9 +66,10 @@ class TURTLE_OT_down_alias(bpy.types.Operator):
     bl_description = "Moves the turtle down. d = distance in blender units"
 
     d: FloatProperty()
+    m: BoolProperty()
 
     def execute(self, context):
-        bpy.ops.turtle.down(d=self.d)
+        bpy.ops.turtle.down(d=self.d, m=self.m)
         return {'FINISHED'}
 
 
@@ -77,9 +79,10 @@ class TURTLE_OT_left_alias(bpy.types.Operator):
     bl_description = "Moves the turtle left. d = distance in blender units"
 
     d: FloatProperty()
+    m: BoolProperty()
 
     def execute(self, context):
-        bpy.ops.turtle.left(d=self.d)
+        bpy.ops.turtle.left(d=self.d, m=self.m)
         return {'FINISHED'}
 
 
@@ -89,9 +92,10 @@ class TURTLE_OT_right_alias(bpy.types.Operator):
     bl_description = "Moves the turtle right. d = distance in blender units"
 
     d: FloatProperty()
+    m: BoolProperty()
 
     def execute(self, context):
-        bpy.ops.turtle.right(d=self.d)
+        bpy.ops.turtle.right(d=self.d, m=self.m)
         return {'FINISHED'}
 
 
