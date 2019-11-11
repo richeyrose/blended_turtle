@@ -89,7 +89,6 @@ def draw_quarter_floor(dimensions, start_loc):
     t.ri(d=slot_w)
     t.select_at_cursor()
     
-
     t.ri(d=leg)
     t.fd(d=leg)
     t.select_at_cursor()
@@ -112,7 +111,6 @@ def draw_quarter_floor(dimensions, start_loc):
     t.ri(d=leg)
     t.select_at_cursor()
     bpy.ops.mesh.delete(type='EDGE')
-    
     
 
     # check if either side is greater than 101.6mm (4").
@@ -141,7 +139,7 @@ def draw_quarter_floor(dimensions, start_loc):
     if y_supports > 0:
         add_extra_supports(y_supports, 'y', support_w, -slot_w, x, y, leg, -outer_w, start_loc, side_length = y)
 
-    # extrude inner sides up 1
+    # extrude inner sides up
     t.pd()
     t.select_all()
     t.up(d=support_h)
@@ -170,7 +168,6 @@ def draw_quarter_floor(dimensions, start_loc):
     t.ri(d=outer_w)
     t.select_all()
     t.merge()
-    
 
     # fill base
     t.pu()
@@ -187,7 +184,7 @@ def draw_quarter_floor(dimensions, start_loc):
     t.select_all()
     bpy.ops.mesh.normals_make_consistent()
 
-    '''
+
     # draw extra support roofs
     t.pu()
     t.deselect_all()
@@ -196,18 +193,18 @@ def draw_quarter_floor(dimensions, start_loc):
     t.fd(d=outer_w)
     t.rt(d=90) 
     t.up(d=support_h)
-
+ 
     if x_supports > 0:
         fill_extra_supports(x_supports, 'x', support_w, slot_w)
-        
+  
     t.home()
     t.ri(d=x / 2 - outer_w)
     t.rt(d=180)
     t.up(d=support_h)
     
     if y_supports > 0:
-        fill_extra_supports(y_supports, 'y', support_w, slot_w)
-    '''
+        fill_extra_supports(y_supports, 'y', support_w, -slot_w)
+    
     # draw corner support roofs
     t.deselect_all()
     t.pu
@@ -220,7 +217,6 @@ def draw_quarter_floor(dimensions, start_loc):
     t.ri(d=leg)
     t.fd(d=leg)
     t.select_at_cursor()
-
     t.fd(d=slot_w)
     t.lf(d=slot_w)
     t.select_at_cursor()
@@ -229,7 +225,7 @@ def draw_quarter_floor(dimensions, start_loc):
     t.select_at_cursor()
     bpy.ops.mesh.edge_face_add()
 
-'''   
+  
     #bridge_slot
     t.deselect_all()
     t.home()
@@ -268,7 +264,6 @@ def draw_quarter_floor(dimensions, start_loc):
     bpy.ops.mesh.edge_face_add()
     
 
-
     # extrude down and clean
     t.pd()
     t.dn(d=slot_h - support_h)
@@ -285,13 +280,11 @@ def draw_quarter_floor(dimensions, start_loc):
     t.fd(d=slot_w)
     t.select_at_cursor()
     bpy.ops.mesh.delete(type='EDGE')
-
     t.ri(d= x / 2 - outer_w)
     t.fd(d=y / 2 - outer_w - slot_w)
     t.select_at_cursor()
     t.lf(d=slot_w)
     t.select_at_cursor()
-
     bpy.ops.mesh.delete(type='EDGE')
 
     # draw outer wall
@@ -325,13 +318,9 @@ def draw_quarter_floor(dimensions, start_loc):
     bpy.ops.mesh.normals_make_consistent()
     t.deselect_all()
     t.home()
-
-    '''
       
     
 def add_extra_supports(num_supports, axis, support_w, slot_w, x, y, leg, outer_w, start_loc, side_length):
-
-
     t.select_at_cursor()
     bpy.ops.mesh.delete(type='VERT')
     t.lf(d=slot_w)
@@ -426,53 +415,38 @@ def add_extra_supports(num_supports, axis, support_w, slot_w, x, y, leg, outer_w
         t.deselect_all()
         t.pu()
 
-                
-
-
-    
-
-    
     
 def fill_extra_supports(num_supports, axis, support_w, slot_w):
-    for i in range(num_supports):
-        if i == 0:
-            t.fd(d=extra_sup_dist / 2)
-        else:
-            t.fd(d=extra_sup_dist + (extra_sup_dist / 2))
-        
-        if(axis == 'x'):
-            t.select_at_cursor()
-            t.fd(d=support_w)
-            t.select_at_cursor()
-            t.lf(d=slot_w)
-            t.select_at_cursor()
-            t.bk(d=support_w)
-            t.select_at_cursor()
-            t.ri(d=slot_w)
-            t.fd(d=support_w)
-            bpy.ops.mesh.edge_face_add()
-            t.deselect_all()
-            
-        else:
-            t.select_at_cursor()
-            t.fd(d=support_w)
-            t.select_at_cursor()        
-            t.ri(d=slot_w)
-            t.select_at_cursor()
-            t.bk(d=support_w)
-            t.select_at_cursor()
-            t.lf(d=slot_w)
-            t.fd(d=support_w)
-            bpy.ops.mesh.edge_face_add()
-            t.deselect_all()
+
+    t.fd(d=extra_sup_dist / 2)
+    t.select_at_cursor()
+    t.lf(d=slot_w)
+    t.select_at_cursor()
+    t.fd(d=support_w)
+    t.select_at_cursor()
+    t.ri(d=slot_w)
+    t.select_at_cursor()
+    bpy.ops.mesh.edge_face_add()
+    t.deselect_all()
+    for i in range(num_supports-1):
+        t.fd(d=extra_sup_dist)
+        t.select_at_cursor()
+        t.lf(d=slot_w)
+        t.select_at_cursor()
+        t.fd(d=support_w)
+        t.select_at_cursor()
+        t.ri(d=slot_w)
+        t.select_at_cursor()
+        bpy.ops.mesh.edge_face_add()
+        t.deselect_all()
 
 
 bpy.context.scene.cursor.location = (0.5, 0.8, 0)
 
-make_floor(dimensions=(400, 400, 7))
+make_floor(dimensions=(101.6, 101.6, 7))
 t.lf(d=100)
 bpy.ops.object.mode_set(mode='OBJECT', toggle=False)
-'''
+
 make_floor(dimensions=(25.4, 50.8, 7))
 t.lf(d=100)
 bpy.ops.object.mode_set(mode='OBJECT', toggle=False)
@@ -545,4 +519,3 @@ make_floor(dimensions=(205, 205, 7))
 t.lf(d=225)
 bpy.ops.object.mode_set(mode='OBJECT', toggle=False)
 
-'''
