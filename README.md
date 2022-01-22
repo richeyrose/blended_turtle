@@ -46,7 +46,7 @@ The syntax is a bit different to Logo as each command is a seperate operator. Th
     bpy.ops.turtle.up(d=0)
    Moves the turtle up along the positive 'Z' axis by d units
 
-    bpy.ops.turtle.up(d=0)
+    bpy.ops.turtle.dn(d=0)
    Moves the turtle down along the negative 'Z' axis by d units
    
     bpy.ops.turtle.setp(v=(0, 0, 0))
