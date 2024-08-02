@@ -8,7 +8,9 @@ I'm a long term blender dabbler and occasional hobbyist coder but have never com
 For more information about turtle graphics and to play around with a traditional 2D Turtle implementation see http://www.logointerpreter.com/logo-reference/
 
 # Installation
-Download the latest release and install it in the usual way by going to Edit > Preferences > Add-ons > Install and then activate it
+This addon depends on "Extra Mesh Objects" extension, install this extension by going to Edit > Preferences > Get Extensions, search and activate it.
+
+Download the latest release and install it in the usual way by going to Edit > Preferences > Add-ons > Install and then activate it.
 
 
 # Basic Usage
